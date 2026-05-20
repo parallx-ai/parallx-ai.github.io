@@ -1,0 +1,77 @@
+---
+import Container from './Container.astro';
+
+const linkBase = 'text-[#ece6d6] hover:text-gold-soft';
+---
+<footer class="relative overflow-hidden bg-[#0e0e0e] pt-20 pb-10 text-[#d9d3c4]">
+  <div
+    class="absolute -right-[60px] -bottom-[60px] h-80 w-80 bg-[url('/assets/logos/mark-dark-bg.png')] bg-contain bg-no-repeat opacity-20"
+    aria-hidden="true"
+  >
+  </div>
+  <Container>
+    <div
+      class="relative z-10 grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-12 max-nav:grid-cols-2 max-nav:gap-9 max-xs:grid-cols-1"
+    >
+      <div>
+        <a
+          href="/"
+          class="inline-flex items-center gap-[2px] font-display text-[34px] leading-none tracking-[-0.02em] text-[#ece6d6]"
+          aria-label="Parallax Labs"
+        >
+          parall<span
+            class="-mb-[5px] inline-block h-9 w-9 bg-[url('/assets/logos/mark-dark-bg.png')] bg-contain bg-center bg-no-repeat"
+            aria-hidden="true"></span>
+        </a>
+        <p class="mt-4 max-w-[32ch] font-display text-[18px] leading-[1.35] text-[#ece6d6]">
+          Scalable white-box auditing <br> for frontier AI agents
+        </p>
+      </div>
+
+      <div>
+        <h4
+          class="mb-[18px] font-mono text-[11px] uppercase tracking-[0.14em] text-[#d9d3c4] opacity-[0.55]"
+        >
+          ParallX
+        </h4>
+        <ul class="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
+          <li><a href="/about.html" class={linkBase}>About</a></li>
+          <li><a href="/#research" class={linkBase}>Research</a></li>
+          <li><a href="/#team" class={linkBase}>People</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4
+          class="mb-[18px] font-mono text-[11px] uppercase tracking-[0.14em] text-[#d9d3c4] opacity-[0.55]"
+        >
+          Follow Us
+        </h4>
+        <ul class="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
+          <li><a href="https://x.com/parallx" rel="noopener" target="_blank" class={linkBase}>X / Twitter</a></li>
+          <li><a href="https://bsky.app/profile/parallx.ai" rel="noopener" target="_blank" class={linkBase}>Bluesky</a></li>
+          <li><a href="https://github.com/parallx-ai" rel="noopener" target="_blank" class={linkBase}>GitHub</a></li>
+          <li><a href="https://huggingface.co/parallx-ai" rel="noopener" target="_blank" class={linkBase}>Hugging Face</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4
+          class="mb-[18px] font-mono text-[11px] uppercase tracking-[0.14em] text-[#d9d3c4] opacity-[0.55]"
+        >
+          Contact
+        </h4>
+        <ul class="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
+          <li><a href="mailto:info@parallx.ai" class={linkBase}>info@parallx.ai</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div
+      class="relative z-10 mt-16 flex items-center justify-between border-t border-white/[0.08] pt-6 font-mono text-[11px] tracking-[0.08em] text-[#b3ad9d]"
+    >
+      <span>© 2026 PARALLAX LABS</span>
+      <span>PARALLX.AI</span>
+    </div>
+  </Container>
+</footer>

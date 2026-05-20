@@ -1,0 +1,54 @@
+---
+import Base from './Base.astro';
+import Container from '../components/Container.astro';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface ArticleMeta {
+  title: string;
+  description: string;
+  eyebrow?: string;
+  meta?: string;
+  screenLabel?: string;
+}
+interface Props extends Partial<ArticleMeta> {
+  frontmatter?: ArticleMeta;
+}
+// MDX pages pass frontmatter via Astro.props.frontmatter; direct .astro
+// usage passes the same fields as top-level props. Support both.
+const fm = (Astro.props.frontmatter ?? Astro.props) as ArticleMeta;
+const { title, description, eyebrow, meta, screenLabel } = fm;
+---
+<Base title={title} description={description} screenLabel={screenLabel}>
+  <SiteNav />
+  <article>
+    <header class="border-b border-rule-soft pt-20 pb-14 max-nav:pt-12 max-nav:pb-10">
+      <Container class="max-w-[760px]">
+        {
+          eyebrow && (
+            <div class="mb-7 font-mono text-[11px] uppercase tracking-[0.14em] text-gold-deep">
+              {eyebrow}
+            </div>
+          )
+        }
+        <h1
+          class="text-balance font-display text-[clamp(40px,5vw,72px)] font-normal leading-[1.05] tracking-[-0.025em]"
+        >
+          {title}
+        </h1>
+        {
+          meta && (
+            <div class="mt-10 font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3">
+              {meta}
+            </div>
+          )
+        }
+      </Container>
+    </header>
+
+    <Container class="prose max-w-[760px] pt-14 pb-24 max-nav:pt-10">
+      <slot />
+    </Container>
+  </article>
+  <SiteFooter />
+</Base>

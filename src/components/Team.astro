@@ -1,0 +1,35 @@
+---
+import Container from './Container.astro';
+import PersonCard from './PersonCard.astro';
+import people from '../data/people.json';
+---
+<section id="team" class="border-t border-rule-soft bg-paper py-24 max-nav:py-16">
+  <Container>
+    <div
+      class="mb-14 grid grid-cols-[1fr_2fr] items-start gap-[60px] max-nav:mb-9 max-nav:grid-cols-1 max-nav:gap-4"
+    >
+      <h2 class="text-balance font-display text-[28px] font-normal leading-[1.1] tracking-[-0.02em]">
+        Meet our Team
+      </h2>
+      <div class="max-w-[58ch] pt-2 text-ink-2">
+        <p class="mb-4">
+          An experienced team working in interpretability, evaluations, and frontier deployment.
+        </p>
+        <!-- <p>
+          <a
+            href="/about.html"
+            class="inline-block border-b border-gold pb-0.5 font-mono text-xs tracking-[0.04em] text-gold-deep"
+          >
+            SEE THE FULL TEAM →
+          </a>
+        </p> -->
+      </div>
+    </div>
+
+    <div
+      class="grid grid-cols-5 gap-x-6 gap-y-8 max-nav:grid-cols-6 max-nav:justify-items-center max-nav:gap-x-5 max-xs:grid-cols-1"
+    >
+      {people.map((person, i) => <PersonCard person={person} index={i} />)}
+    </div>
+  </Container>
+</section>

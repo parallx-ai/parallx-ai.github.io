@@ -1,0 +1,243 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: `dark:` variants fire when `.dark` is on
+   <html> (or any ancestor). Toggled by the script in SiteNav. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* =============================================================
+   Design tokens — exposed to Tailwind as utilities
+   (e.g. bg-cream, text-ink-2, border-rule, font-display)
+   ============================================================= */
+@theme {
+  /* Surfaces */
+  --color-cream: #f4f1ea;
+  --color-paper: #ebe6dc;
+  --color-paper-2: #e3ddcd;
+
+  /* Ink */
+  --color-ink: #141414;
+  --color-ink-1: #2a2823;
+  --color-ink-2: #5b574e;
+  --color-ink-3: #8a8576;
+
+  /* Rules */
+  --color-rule: #d8d0bf;
+  --color-rule-soft: #e6dfce;
+
+  /* Accent */
+  --color-gold: #c89a2a;
+  --color-gold-deep: #a37f1f;
+  --color-gold-soft: #e8c97a;
+
+  /* Type */
+  --font-display: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --font-body: "IBM Plex Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Breakpoints — the design is desktop-first, so these are used
+     mostly via the max-* variants (max-xs:, max-nav:). */
+  --breakpoint-xs: 600px;
+  --breakpoint-nav: 1000px;
+}
+
+/* =============================================================
+   Dark mode — re-bind the surface/ink/rule tokens so every
+   Tailwind utility built from them flips automatically. Gold
+   accents work in both modes and stay unchanged.
+   ============================================================= */
+html.dark {
+  --color-cream: #161512;
+  --color-paper: #1f1d1a;
+  --color-paper-2: #2a2723;
+  --color-ink: #f4f1ea;
+  --color-ink-1: #e8e1d0;
+  --color-ink-2: #a8a195;
+  --color-ink-3: #7a7568;
+  --color-rule: #3a3530;
+  --color-rule-soft: #2a2723;
+}
+
+/* The hero graph paints its base edges and dormant nodes with
+   inline SVG attributes, which Tailwind tokens can't reach.
+   Override them via CSS so they invert with the theme. */
+html.dark #hero-graph #g-edges-base line { stroke: var(--color-ink-2); }
+html.dark #hero-graph #g-nodes circle:not(.node-hot):not(.halo) {
+  fill: var(--color-ink);
+}
+html.dark #hero-graph > line { stroke: var(--color-rule); }
+
+/* =============================================================
+   Base
+   ============================================================= */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+  a:hover { color: var(--color-gold-deep); }
+}
+
+/* =============================================================
+   Hero neural-graph figure
+   Height and label size are tunable at runtime via the Tweaks
+   panel, which sets these custom properties on :root.
+   ============================================================= */
+#hero-graph {
+  width: 100%;
+  height: var(--hero-fig-height, 446.433px);
+}
+#hero-graph #g-labels {
+  fill: var(--color-gold);
+  font-weight: 700;
+}
+#hero-graph #g-labels text {
+  font-size: var(--hero-label-size, 11px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* =============================================================
+   Prose — long-form editorial typography for MDX articles.
+   Applied via the .prose class on the article body container.
+   ============================================================= */
+.prose {
+  color: var(--color-ink-1);
+  font-family: var(--font-body);
+  font-size: 17.5px;
+  line-height: 1.7;
+}
+.prose > * + * { margin-top: 1.2em; }
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.prose h2 {
+  margin-top: 1.5em;
+  font-size: clamp(28px, 2.8vw, 36px);
+  line-height: 1.15;
+}
+.prose h3 {
+  margin-top: 2.2em;
+  font-size: 22px;
+  line-height: 1.3;
+}
+.prose h4 {
+  margin-top: 1.8em;
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--color-ink-1);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+}
+
+.prose p { max-width: 68ch; text-wrap: pretty; }
+.prose > p:first-of-type {
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
+
+.prose strong { color: var(--color-ink); font-weight: 600; }
+.prose em { font-style: italic; }
+
+.prose a {
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-rule);
+  transition: color 0.15s, border-color 0.15s;
+}
+.prose a:hover {
+  color: var(--color-gold-deep);
+  border-color: var(--color-gold);
+}
+
+.prose ul,
+.prose ol { max-width: 68ch; padding-left: 1.25em; }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+.prose li + li { margin-top: 0.4em; }
+
+.prose blockquote {
+  margin-left: 0;
+  padding-left: 1.25em;
+  border-left: 2px solid var(--color-gold);
+  color: var(--color-ink-1);
+  font-style: italic;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+  margin: 3em 0;
+}
+
+.prose code {
+  background: var(--color-paper);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+}
+
+/* Hero attribution graph — static by default, reveals the gold
+   circuit on hover. The hero script tags each hot edge with .pulse
+   and each halo / hot node with .halo / .node-hot, and writes a
+   stagger offset to `--delay` so the edges draw left-to-right. */
+@keyframes dashDraw {
+  to { stroke-dashoffset: 0; }
+}
+.pulse {
+  /* Each line carries pathLength="1" so dash math is normalized
+     to its actual geometry instead of a hardcoded length. */
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+#hero-graph .node-hot {
+  fill: var(--color-ink);
+  transition: fill 0.35s ease;
+}
+#hero-graph .halo {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+/* Cumulative per-layer reveal. JS adds `show-l0` ... `show-l{N}` to the
+   SVG when hit-rect N is hovered; CSS turns on the matching tagged
+   elements. Each layer of state is independent so they stack naturally:
+   hovering "action" sets all four classes and reveals the whole graph. */
+#hero-graph.show-l0 .node-hot.l-0,
+#hero-graph.show-l1 .node-hot.l-1,
+#hero-graph.show-l2 .node-hot.l-2,
+#hero-graph.show-l3 .node-hot.l-3 { fill: var(--color-gold); }
+
+#hero-graph.show-l0 .halo.l-0,
+#hero-graph.show-l1 .halo.l-1,
+#hero-graph.show-l2 .halo.l-2,
+#hero-graph.show-l3 .halo.l-3 { opacity: 1; }
+
+#hero-graph.show-l1 .pulse.l-1,
+#hero-graph.show-l2 .pulse.l-2,
+#hero-graph.show-l3 .pulse.l-3 {
+  opacity: 1;
+  animation: dashDraw 1.1s ease-out var(--delay, 0s) forwards;
+}
+
+#hero-graph.show-l0 #g-labels text:nth-of-type(1),
+#hero-graph.show-l1 #g-labels text:nth-of-type(2),
+#hero-graph.show-l2 #g-labels text:nth-of-type(3),
+#hero-graph.show-l3 #g-labels text:nth-of-type(4) { opacity: 1; }

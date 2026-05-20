@@ -1,0 +1,17 @@
+[
+  {
+    "title": "INIF: an Interpretability Interchange Format for White-box Auditing at scale.",
+    "year": 2026,
+    "author": "Sarti et al.",
+    "author_short": "Sarti et al.",
+    "summary": "A schema co-developed with NDIF, linking evaluation logs from black-box agent harnesses to interpretability artefacts for online and post-hoc analysis. Includes drop-in integrations for Inspect and other popular evaluation frameworks.",
+    "tags": ["Open source", "Infrastructure"],
+    "collaboration": ["ndif", "northeastern"],
+    "news": [],
+    "featured": false,
+    "figure": "INTERCHANGE SCHEMA",
+    "code_link": "",
+    "data_link": "",
+    "demo_link": ""
+  }
+]

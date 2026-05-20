@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import SiteNav from '../components/SiteNav.astro';
+import Hero from '../components/Hero.astro';
+import MissionStrip from '../components/MissionStrip.astro';
+import Collaborators from '../components/Collaborators.astro';
+import ResearchList from '../components/ResearchList.astro';
+import Team from '../components/Team.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import TweaksPanel from '../components/TweaksPanel.astro';
+
+import publications from '../data/publications.json';
+import tools from '../data/tools.json';
+
+// The Featured Research strip renders publications and tools as a single
+// list of cards. Only entries with `featured: true` are surfaced here.
+// Publications expose `abstract`, tools expose `summary` — normalise to
+// a shared `text` field so one card markup handles both.
+const research = [
+  ...publications.filter((p) => p.featured).map((p) => ({ ...p, text: p.abstract })),
+  ...tools.filter((t) => t.featured).map((t) => ({ ...t, text: t.summary, venue: '' })),
+];
+---
+<Base
+  title="Parallax Labs"
+  description="Parallax Labs is a non-profit research organization making scalable white-box auditing of frontier AI a reality."
+  screenLabel="Home"
+>
+  <SiteNav />
+  <Hero />
+  <MissionStrip />
+  <Collaborators />
+  <ResearchList items={research} />
+  <Team />
+  <SiteFooter />
+</Base>

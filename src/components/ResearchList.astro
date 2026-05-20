@@ -1,0 +1,212 @@
+---
+import Container from './Container.astro';
+import Button from './Button.astro';
+import orgs from '../data/orgs.json';
+
+interface NewsItem {
+  org: string;
+  url: string;
+}
+interface ResearchItem {
+  title: string;
+  year: number;
+  author_short: string;
+  text: string;
+  venue?: string;
+  tags: string[];
+  collaboration?: string[];
+  news?: NewsItem[];
+  figure?: string;
+  paper_link?: string;
+  code_link?: string;
+  data_link?: string;
+  demo_link?: string;
+}
+interface Props {
+  items: ResearchItem[];
+}
+const { items } = Astro.props;
+
+// Build a slug -> org lookup keyed by the logo filename
+// (e.g. "/assets/orgs/ndif.png" -> "ndif"), so `collaboration: "ndif"`
+// in the data finds the right logo and accessible name.
+const orgsBySlug: Record<string, { name: string; logo: string }> =
+  Object.fromEntries(
+    orgs.map((o) => {
+      const slug = o.logo_img_path.split('/').pop()?.replace(/\.\w+$/, '') ?? '';
+      return [slug.toLowerCase(), { name: o.name, logo: o.logo_img_path }];
+    }),
+  );
+
+const tagBase =
+  'border px-2 py-1 font-mono text-[10.5px] uppercase tracking-[0.1em]';
+const tagPlain = 'border-rule text-ink-2';
+const tagGold = 'border-gold text-gold-deep';
+
+// `figure` may be either a short caption ("ATTRIBUTION GRAPH") or a path
+// to an image asset; treat anything that ends in an image extension as
+// an actual image to render full-bleed inside the figure box.
+const isImagePath = (s?: string) => !!s && /\.(png|jpe?g|webp|svg|gif)$/i.test(s);
+---
+<section id="research" class="border-t border-rule-soft py-24 max-nav:py-16">
+  <Container>
+    <div
+      class="mb-14 grid grid-cols-[1fr_2fr] items-start gap-[60px] max-nav:mb-9 max-nav:grid-cols-1 max-nav:gap-4"
+    >
+      <h2 class="text-balance font-display text-[32px] font-normal leading-[1.1] tracking-[-0.02em]">
+        From first principles to frontier-scale audits
+      </h2>
+      <div class="max-w-[58ch] pt-2 text-ink-2">
+        <p class="text-[18px]">
+          We study how agents encode beliefs, goals, plans, and how these factors affect their behavior at scale.
+        </p>
+      </div>
+    </div>
+
+    <div class="border-t border-rule">
+      {
+        items.map((item) => (
+          <article class="grid grid-cols-[1fr_clamp(260px,28vw,420px)] items-center gap-10 border-b border-rule-soft py-8 transition-colors hover:bg-[rgba(200,154,42,0.04)] max-nav:grid-cols-1 max-nav:gap-5">
+            <div class="min-w-0">
+              <div class="mb-1 font-mono text-[11px] uppercase tracking-[0.08em] text-ink-2">
+                {item.year} · {item.author_short}
+              </div>
+              <h3 class="mt-1.5 mb-2.5 max-w-[36ch] text-balance font-display text-[25px] font-normal leading-[1.18] tracking-[-0.015em]">
+                {item.paper_link ? (
+                  <a
+                    href={item.paper_link}
+                    rel="noopener"
+                    target="_blank"
+                    class="underline decoration-rule decoration-1 underline-offset-4 transition-colors hover:text-gold-deep hover:decoration-gold"
+                  >
+                    {item.title}
+                  </a>
+                ) : (
+                  item.title
+                )}
+              </h3>
+              <p class="m-0 max-w-[62ch] text-[15px] text-ink-1">{item.text}</p>
+              {item.collaboration && item.collaboration.length > 0 && (
+                <div class="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-2">
+                  <span>In collaboration with</span>
+                  {item.collaboration.map((slug) => {
+                    if (typeof slug !== 'string') return null;
+                    const org = orgsBySlug[slug.toLowerCase()];
+                    if (!org) return null;
+                    const maskStyle = `mask:url(${org.logo}) center / contain no-repeat;-webkit-mask:url(${org.logo}) center / contain no-repeat;`;
+                    return (
+                      <span
+                        role="img"
+                        aria-label={org.name}
+                        title={org.name}
+                        class="inline-block bg-ink opacity-80"
+                        style={maskStyle}
+                      >
+                        <img
+                          src={org.logo}
+                          alt=""
+                          aria-hidden="true"
+                          class="block h-6 max-w-[120px] opacity-0"
+                        />
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+              {item.news && item.news.length > 0 && (
+                <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-2">
+                  <span>Covered by</span>
+                  {item.news.map((n) => {
+                    if (!n || typeof n.org !== 'string') return null;
+                    const org = orgsBySlug[n.org.toLowerCase()];
+                    if (!org) return null;
+                    const maskStyle = `mask:url(${org.logo}) center / contain no-repeat;-webkit-mask:url(${org.logo}) center / contain no-repeat;`;
+                    return (
+                      <a
+                        href={n.url || '#'}
+                        rel="noopener"
+                        target="_blank"
+                        aria-label={org.name}
+                        title={org.name}
+                        class="group/news inline-block"
+                      >
+                        <span
+                          aria-hidden="true"
+                          class="inline-block bg-ink opacity-80 transition-colors group-hover/news:bg-gold-deep group-hover/news:opacity-100"
+                          style={maskStyle}
+                        >
+                          <img
+                            src={org.logo}
+                            alt=""
+                            aria-hidden="true"
+                            class="block h-6 max-w-[120px] opacity-0"
+                          />
+                        </span>
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
+              <div class="mt-3.5 flex flex-wrap gap-1.5">
+                {item.venue && <span class:list={[tagBase, tagGold]}>{item.venue}</span>}
+                {item.tags.map((t) => (
+                  <span class:list={[tagBase, tagPlain]}>{t}</span>
+                ))}
+              </div>
+              {(() => {
+                const resources = [
+                  item.code_link && { label: 'CODE', url: item.code_link },
+                  item.data_link && { label: 'DATA', url: item.data_link },
+                  item.demo_link && { label: 'DEMO', url: item.demo_link },
+                ].filter(Boolean) as { label: string; url: string }[];
+                if (resources.length === 0) return null;
+                return (
+                  <div class="mt-3 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-2">
+                    {resources.map((r, i) => (
+                      <>
+                        {i > 0 && <span class="mx-2 text-ink-3">|</span>}
+                        <a
+                          href={r.url}
+                          rel="noopener"
+                          target="_blank"
+                          class="underline decoration-rule decoration-1 underline-offset-4 transition-colors hover:text-gold-deep hover:decoration-gold"
+                        >
+                          {r.label}
+                        </a>
+                      </>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+            <div
+              class="relative flex aspect-[16/10] items-center justify-center overflow-hidden border border-rule-soft bg-paper max-nav:order-first max-nav:aspect-[16/8]"
+              aria-hidden="true"
+            >
+              {isImagePath(item.figure) ? (
+                <img
+                  src={item.figure}
+                  alt=""
+                  class="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <>
+                  <div class="absolute inset-0 bg-[repeating-linear-gradient(-38deg,transparent_0_9px,rgba(0,0,0,0.05)_9px_10px)]" />
+                  {item.figure && (
+                    <span class="relative border border-rule-soft bg-paper px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-3">
+                      {item.figure}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <!-- <div class="mt-9 flex items-center justify-end">
+      <Button href="#" variant="ghost">See all publications</Button>
+    </div> -->
+  </Container>
+</section>

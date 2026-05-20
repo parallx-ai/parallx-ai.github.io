@@ -1,0 +1,46 @@
+---
+interface Person {
+  name: string;
+  role: string;
+  bio: string;
+  image: string;
+}
+interface Props {
+  person: Person;
+  /** Position in a 5-person trustee row — drives responsive col-spans. */
+  index?: number;
+}
+const { person, index = 0 } = Astro.props;
+
+// Trustee row at <=1000px (6-col grid): first 2 span 3, rest span 2.
+// At <=600px collapses to a single column.
+const span = index < 2 ? 'max-nav:col-span-3' : 'max-nav:col-span-2';
+
+function getZoom(name: string): string {
+  if (name.toLowerCase().includes('yonatan')) return 'scale-[1.32] origin-[center_22%]';
+  return '';
+}
+
+const zoom = getZoom(person.name);
+---
+<div
+  class:list={[
+    'group flex w-full max-w-[240px] flex-col gap-2.5',
+    span,
+    'max-xs:col-span-1 max-xs:max-w-[200px]',
+  ]}
+>
+  <div class="relative aspect-[4/5] w-full overflow-hidden border border-rule-soft bg-paper">
+    <img
+      src={person.image}
+      alt={person.name}
+      class:list={[
+        'absolute inset-0 h-full w-full object-cover object-top [filter:saturate(0.85)_contrast(0.98)] transition-[filter] group-hover:[filter:saturate(1)_contrast(1)]',
+        zoom,
+      ]}
+    />
+  </div>
+  <div class="mt-1.5 font-display text-[18px] leading-[1.2] tracking-[-0.01em]">{person.name}</div>
+  <div class="font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-2">{person.role}</div>
+  <div class="text-[12.5px] text-ink-1">{person.bio}</div>
+</div>

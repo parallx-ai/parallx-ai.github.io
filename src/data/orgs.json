@@ -1,0 +1,74 @@
+[
+  {
+    "name": "National Deep Inference Fabric (NDIF)",
+    "logo_img_path": "/assets/orgs/ndif.png",
+    "website": "",
+    "collaborator": true
+  },
+  {
+    "name": "University College London (UCL)",
+    "logo_img_path": "/assets/orgs/ucl.png",
+    "website": "",
+    "collaborator": true
+  },
+  {
+    "name": "Northeastern University",
+    "logo_img_path": "/assets/orgs/neu.png",
+    "website": "",
+    "collaborator": true
+  },
+  {
+    "name": "Technion — Israel Institute of Technology",
+    "logo_img_path": "/assets/orgs/technion.png",
+    "website": "",
+    "collaborator": true
+  },
+  {
+    "name": "Cohere",
+    "logo_img_path": "/assets/orgs/cohere.png",
+    "website": "",
+    "collaborator": true
+  },
+  {
+    "name": "Northeastern University",
+    "logo_img_path": "/assets/orgs/northeastern.png",
+    "website": "",
+    "collaborator": false
+  },
+  {
+    "name": "UK AI Security Institute",
+    "logo_img_path": "/assets/orgs/uk-aisi.png",
+    "website": "",
+    "collaborator": false
+  },
+  {
+    "name": "SPAR",
+    "logo_img_path": "/assets/orgs/spar.png",
+    "website": "",
+    "collaborator": false
+  },
+  {
+    "name": "Vox",
+    "logo_img_path": "/assets/orgs/vox.png",
+    "website": "https://www.vox.com",
+    "collaborator": false
+  },
+  {
+    "name": "Science",
+    "logo_img_path": "/assets/orgs/science.png",
+    "website": "https://www.science.org",
+    "collaborator": false
+  },
+  {
+    "name": "Wired",
+    "logo_img_path": "/assets/orgs/wired.png",
+    "website": "https://www.wired.com",
+    "collaborator": false
+  },
+  {
+    "name": "Die Zeit",
+    "logo_img_path": "/assets/orgs/zeit.png",
+    "website": "https://www.zeit.de",
+    "collaborator": false
+  }
+]

@@ -1,0 +1,193 @@
+---
+import Container from './Container.astro';
+import Button from './Button.astro';
+---
+<section class="relative overflow-hidden pt-20 pb-[110px] max-nav:pt-8 max-nav:pb-10">
+  <Container class="grid grid-cols-[1.05fr_1fr] items-center gap-[60px] max-nav:grid-cols-1 max-nav:gap-6">
+    <div>
+      <h1
+        class="text-balance font-[Georgia,serif] text-[clamp(40px,5.5vw,84px)] font-normal leading-[1.02] tracking-[-0.025em]"
+      >
+        <span class="text-gold">Parallax</span> Labs
+      </h1>
+      <p
+        class="mt-7 max-w-[64ch] text-pretty font-display text-[clamp(20px,1.7vw,24px)] font-normal leading-[1.45] tracking-[-0.005em] text-ink-1"
+      >
+        We build tools and advance the science of <br> white-box auditing for
+        frontier AI agents.
+      </p>
+      <div class="mt-9 flex flex-wrap items-center gap-3.5">
+        <Button href="/about.html">About us</Button>
+        <Button href="mailto:info@parallx.ai" variant="ghost">Get in touch</Button>
+      </div>
+    </div>
+
+    <div
+      class="relative aspect-[1/0.85] max-nav:-order-1 max-nav:mx-auto max-nav:w-full max-nav:max-w-[560px]"
+      aria-hidden="true"
+    >
+      <!-- Neural-graph motif derived from the brand banner. Topology: 8-8-8-1.
+           Highlighted "circuit" fans 5 -> 3 -> 2 -> 1, animated as a propagating attribution graph. -->
+      <svg id="hero-graph" viewBox="0 0 600 520" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#e8c97a" stop-opacity="0.85"></stop>
+            <stop offset="60%" stop-color="#c89a2a" stop-opacity="0.18"></stop>
+            <stop offset="100%" stop-color="#c89a2a" stop-opacity="0"></stop>
+          </radialGradient>
+          <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.0"></feGaussianBlur>
+          </filter>
+        </defs>
+        <g id="g-edges-base"></g>
+        <g id="g-edges-hot" filter="url(#soft)"></g>
+        <g id="g-nodes"></g>
+        <g id="g-labels" font-family="IBM Plex Mono, monospace" letter-spacing="1.2">
+          <text x="80" y="500" text-anchor="middle">OBSERVATION</text>
+          <text x="240" y="500" text-anchor="middle">BELIEF</text>
+          <text x="400" y="500" text-anchor="middle">GOAL</text>
+          <text x="560" y="500" text-anchor="middle">ACTION</text>
+        </g>
+        <line x1="40" y1="482" x2="580" y2="482" stroke="#d8d0bf" stroke-width="0.5"></line>
+      </svg>
+    </div>
+  </Container>
+</section>
+
+<script>
+  // Builds the hero attribution graph. Continuous propagation: each layer
+  // hands off to the next as it finishes drawing, with no idle pause.
+  (function buildHeroGraph() {
+    const svg = document.getElementById('hero-graph');
+    if (!svg) return;
+    const ns = 'http://www.w3.org/2000/svg';
+
+    // Layout: 4 layers, all share vertical band 60->460.
+    // Layers 1-3 have 8 nodes, layer 4 has 1 (centered).
+    const layers = [
+      { x: 80, n: 8, hot: [1, 2, 4, 5, 7] }, // observation - 5 hot
+      { x: 240, n: 8, hot: [1, 3, 5] }, // belief - units 2, 4, 6
+      { x: 400, n: 8, hot: [2, 6] }, // goal - units 3, 7
+      { x: 560, n: 1, hot: [0] }, // action - 1 hot
+    ];
+
+    const yTop = 60,
+      yBot = 460;
+    function yFor(i: number, n: number) {
+      if (n === 1) return (yTop + yBot) / 2;
+      return yTop + ((yBot - yTop) * i) / (n - 1);
+    }
+
+    const positions = layers.map((L) => {
+      const arr = [];
+      for (let i = 0; i < L.n; i++)
+        arr.push({ x: L.x, y: yFor(i, L.n), hot: L.hot.includes(i) });
+      return arr;
+    });
+
+    const baseG = document.getElementById('g-edges-base')!;
+    const hotG = document.getElementById('g-edges-hot')!;
+    const nodeG = document.getElementById('g-nodes')!;
+
+    // Edges — every edge gets a gray base so the full topology is
+    // always visible. Hot edges additionally get a gold overlay that
+    // stays hidden until the figure is hovered.
+    for (let l = 0; l < layers.length - 1; l++) {
+      const A = positions[l],
+        B = positions[l + 1];
+      for (let i = 0; i < A.length; i++) {
+        for (let j = 0; j < B.length; j++) {
+          const a = A[i],
+            b = B[j];
+
+          const base = document.createElementNS(ns, 'line');
+          base.setAttribute('x1', String(a.x));
+          base.setAttribute('y1', String(a.y));
+          base.setAttribute('x2', String(b.x));
+          base.setAttribute('y2', String(b.y));
+          base.setAttribute('stroke', '#5b574e');
+          base.setAttribute('stroke-width', '0.55');
+          base.setAttribute('opacity', '0.45');
+          base.setAttribute('fill', 'none');
+          baseG.appendChild(base);
+
+          if (a.hot && b.hot) {
+            const hot = document.createElementNS(ns, 'line');
+            hot.setAttribute('x1', String(a.x));
+            hot.setAttribute('y1', String(a.y));
+            hot.setAttribute('x2', String(b.x));
+            hot.setAttribute('y2', String(b.y));
+            hot.setAttribute('stroke', '#c89a2a');
+            hot.setAttribute('stroke-width', '1.4');
+            hot.setAttribute('fill', 'none');
+            // `l-{N}` is the destination layer — the edge reveals when
+            // that layer (or any later layer) is hovered.
+            hot.setAttribute('class', 'pulse l-' + (l + 1));
+            // Normalize each line's logical length so the dash animation
+            // covers the whole edge regardless of its geometric distance.
+            hot.setAttribute('pathLength', '1');
+            // Stagger the reveal left-to-right on hover.
+            hot.style.setProperty('--delay', l * 0.3 + (i % 5) * 0.04 + 's');
+            hotG.appendChild(hot);
+          }
+        }
+      }
+    }
+
+    // Nodes — neutral by default; CSS turns hot nodes gold on hover.
+    positions.forEach((layer, li) => {
+      layer.forEach((p) => {
+        if (p.hot) {
+          // Glow halo - scales with node size; hidden until hover.
+          const halo = document.createElementNS(ns, 'circle');
+          halo.setAttribute('cx', String(p.x));
+          halo.setAttribute('cy', String(p.y));
+          halo.setAttribute('r', li === layers.length - 1 ? '30' : '22');
+          halo.setAttribute('fill', 'url(#goldGlow)');
+          halo.setAttribute('class', 'halo l-' + li);
+          nodeG.appendChild(halo);
+        }
+        const c = document.createElementNS(ns, 'circle');
+        c.setAttribute('cx', String(p.x));
+        c.setAttribute('cy', String(p.y));
+        const isOutput = li === layers.length - 1;
+        c.setAttribute('r', isOutput ? '9' : p.hot ? '6.5' : '5.5');
+        if (p.hot) c.setAttribute('class', 'node-hot l-' + li);
+        else c.setAttribute('fill', '#141414');
+        nodeG.appendChild(c);
+      });
+    });
+
+    // Per-layer hover hit areas. Hovering layer N reveals N and every
+    // earlier layer; leaving the SVG hides everything.
+    const bounds: [number, number][] = [
+      [0, 160],
+      [160, 320],
+      [320, 480],
+      [480, 600],
+    ];
+    const hits = document.createElementNS(ns, 'g');
+    hits.setAttribute('id', 'g-hits');
+    bounds.forEach(([x0, x1], idx) => {
+      const r = document.createElementNS(ns, 'rect');
+      r.setAttribute('x', String(x0));
+      r.setAttribute('y', '0');
+      r.setAttribute('width', String(x1 - x0));
+      r.setAttribute('height', '520');
+      r.setAttribute('fill', 'transparent');
+      r.addEventListener('mouseenter', () => {
+        for (let k = 0; k <= 3; k++) svg.classList.toggle('show-l' + k, k <= idx);
+      });
+      r.addEventListener('mouseleave', () => {
+        // Observation stays revealed at all times; only later layers reset.
+        for (let k = 1; k <= 3; k++) svg.classList.remove('show-l' + k);
+      });
+      hits.appendChild(r);
+    });
+    svg.appendChild(hits);
+
+    // Observation layer is always active so the page never reads as
+    // a fully grey graph on load.
+    svg.classList.add('show-l0');
+  })();
+</script>

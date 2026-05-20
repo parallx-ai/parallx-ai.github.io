@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Mario Giulianelli",
+    "role": "Co-founder · Research Lead",
+    "bio": "Associate Professor, UCL",
+    "image": "/assets/people/mario.png",
+    "website": "",
+    "twitter": "",
+    "linkedin": "",
+    "huggingface": "",
+    "github": ""
+  },
+  {
+    "name": "Gabriele Sarti",
+    "role": "Co-founder · R&D Lead",
+    "bio": "Postdoc, Northeastern",
+    "image": "/assets/people/gabriele.jpg",
+    "website": "",
+    "twitter": "",
+    "linkedin": "",
+    "huggingface": "",
+    "github": ""
+  },
+  {
+    "name": "David Bau",
+    "role": "Trustee",
+    "bio": "Assistant Professor, Northeastern · PI, NDIF Project",
+    "image": "/assets/people/david.png",
+    "website": "",
+    "twitter": "",
+    "linkedin": "",
+    "huggingface": "",
+    "github": ""
+  },
+  {
+    "name": "Yonatan Belinkov",
+    "role": "Trustee",
+    "bio": "Associate Professor, Technion",
+    "image": "/assets/people/yonatan.png",
+    "website": "",
+    "twitter": "",
+    "linkedin": "",
+    "huggingface": "",
+    "github": ""
+  },
+  {
+    "name": "Seraphina Goldfarb-Tarrant",
+    "role": "Trustee",
+    "bio": "Head of AI Safety, Cohere",
+    "image": "/assets/people/seraphina.jpg",
+    "website": "",
+    "twitter": "",
+    "linkedin": "",
+    "huggingface": "",
+    "github": ""
+  }
+]

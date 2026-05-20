@@ -1,0 +1,70 @@
+---
+layout: ../layouts/Article.astro
+title: Introducing Parallax Labs 
+description: Parallax Labs is a non-profit research organisation making white-box alignment auditing a core layer of frontier AI evaluation.
+eyebrow: Blog
+meta: May 2026 - Mario Giulianelli and Gabriele Sarti
+---
+
+import PersonCard from '../components/PersonCard.astro';
+import people from '../data/people.json';
+
+Parallax Labs is a non-profit research organisation whose **mission is to make white-box alignment auditing a core layer of frontier AI evaluation**. We develop the science and open infrastructure needed to identify the internal beliefs, goals, and decision processes that drive advanced AI agents.
+
+Today, most deployment-relevant evaluations remain primarily behavioural: they measure task success, inspect transcripts and logs, and analyse what models verbalise in their reasoning. These signals are important, but they do not directly test what an agent internally represents about its situation or which goal is driving its behaviour. As a result, the same failure can reflect limited capability, an incorrect belief, or pursuit of a conflicting goal, or other underlying causes that black-box evaluation alone cannot distinguish. **Parallax addresses this gap by developing methods and open-source infrastructure for combining behavioural evidence with model-internal evidence.** Our goal is to make white-box auditing a practical and reproducible layer of frontier AI evaluation, so that evaluators can identify, explain, and predict on safety-critical failures in terms of the mechanisms that produce them.
+
+## The problem we're trying to solve
+
+Frontier AI evaluations are becoming increasingly open-ended and realistic. Agents are tested on long-horizon tasks, in complex environments requiring tool use, and with increasingly sophisticated scaffolds. As a result, failures are becoming harder to diagnose: the same unsuccessful run may reflect, among other things, limited capability, incorrect beliefs about the environment, a flawed plan, pursuit of a conflicting goal, or behaviour shaped by awareness of the evaluation setting.
+
+Most evaluation evidence, however, remains primarily behavioural. Evaluators measure task success, inspect transcripts, analyse execution logs, and increasingly examine what models verbalise in their reasoning. These signals are useful for categorising failures, identifying anomalous behaviour, and generating hypotheses about what went wrong. But they cannot reliably distinguish between competing explanations for observed behaviour.
+
+This matters because evaluators often need to draw conclusions that go beyond whether a model succeeded or failed on a task. In particular, they need to know whether a failure is evidence of misalignment rather than limited capability or some other latent cause. In settings where models may exhibit evaluation awareness, unverbalised reasoning, or potentially deceptive actions, this limitation becomes especially serious.
+
+## Our strategy
+
+Parallax addresses this gap through two mutually reinforcing strands of work: a scientific programme and an open infrastructure programme. The scientific programme develops methods for identifying the model-internal mechanisms that explain agent behaviour. The infrastructure programme makes those methods usable inside realistic evaluation workflows.
+
+### The science of white-box alignment auditing
+
+Parallax develops white-box methods for moving from observing behaviour to testing explanations of the internal processes that produced it. Given an observed failure, evaluators should be able to compare hypotheses: for example, whether the agent misunderstood the state of the environment, predicted the wrong consequences of its actions, or pursued a conflicting objective.
+
+Our work therefore focuses on methods that can identify and measure model-internal variables in increasingly realistic agent settings. This includes techniques for decoding or verbalising internal representations and testing whether interventions on them causally affect the agent's actions. The aim is not descriptive; we want to determine whether model-internal variables help explain and predict behaviour in decision-relevant evaluation settings.
+
+A central challenge is scaling white-box methods from simple settings to open-ended, safety-relevant tasks. Our [prior work on agent cognitive maps](https://arxiv.org/abs/2602.08964) showed that an agent's failures in a simple game setting are better explained by its uncertain and partially incorrect internal beliefs about the environment state, decoded with white-box methods, than as goal-directed within the ground-truth state available to a black-box evaluator. Parallax extends this direction to more open-ended, safety-relevant evaluations, where the relevant beliefs, goals, and plans are less structured and harder to specify in advance.
+
+### Open-source white-box auditing infrastructure
+
+Parallax pairs its scientific work with open-source infrastructure that connects behavioural evaluation traces to model-internal evidence. Evaluation frameworks such as Inspect produce rich records of agent behaviour: transcripts, tool calls, execution logs, and interaction histories. These traces can be analysed automatically to identify failures, generate candidate explanations, and locate high-information points in long trajectories. Interpretability tools and infrastructure such as NDIF, with which we are connected, make it possible to inspect internal model states and produce evidence artefacts such as probe outputs, attribution results, activation-level explanations, verbalised representations, and intervention outcomes. Parallax builds the layer between these two ecosystems.
+
+This infrastructure makes white-box auditing practical inside real evaluation workflows. Evaluators should be able to move from a behavioural anomaly to the relevant region of a trajectory, attach internal evidence to specific decisions or tool calls, compare competing explanations, and reproduce the audit. We will address two core technical challenges concerning using white-box methods in long-horizon settings: knowing where to inspect the model (localisation), how to combine evidence across many steps (aggregation).
+
+## Who we are doing this for
+
+Parallax builds fully open-source methods and infrastructure for government evaluation bodies, independent auditors, frontier model developers, and AI safety researchers.
+
+Our aim is to make white-box auditing a shared public good for the frontier evaluation ecosystem. We develop open methods, open-source tools, and reproducible workflows that evaluators can inspect, use, adapt, and extend, rather than proprietary systems that remain locked inside a single organisation.
+
+## What success looks like
+
+Parallax succeeds if white-box alignment auditing becomes a standard layer of frontier AI evaluation, and our methods and infrastructure are practical, reproducible, and trusted by leading safety and security evaluators and researchers.
+
+In practice, this means evaluators can start from a behavioural failure, identify the relevant parts of an agent trajectory, attach model-internal evidence, compare competing explanations, and test whether the proposed internal mechanisms causally affect behaviour.
+
+This would make evaluations actually diagnostic: better able to distinguish surface behaviour from internal causes, including capability failures from misalignment, and therefore able to support more confident claims about risks such as dishonesty, strategic behaviour, or conflicting goals.
+
+## Why us
+
+Parallax is particularly well positioned to make white-box alignment auditing practical. The team combines expertise in frontier AI evaluation, AI safety, mechanistic interpretability, research infrastructure, and interface design, with experience across government, academia, and industry. This gives us direct understanding of all sides of the problem: what evaluators need in realistic safety assessments, what current interpretability methods can and cannot yet provide, and how to turn complex technical methods into interfaces and workflows that users can actually adopt.
+
+We are engaging with leading open-source infrastructure efforts, in particular Inspect and NDIF, which represent state-of-the-art evaluation and interpretability infrastructure. Parallax will coordinate with these ecosystems to ensure that white-box auditing methods can be integrated into existing workflows rather than developed as isolated tools.
+
+Our non-profit structure and open-source focus are central to why Parallax is needed. Several leading organisations are working on related questions, but much of the emerging infrastructure for agent monitoring and interpretability remains proprietary. Parallax aims to build shared scientific and technical foundations that the broader evaluation community can inspect, reproduce, and extend.
+
+We also aim to establish Parallax as a leading European centre for white-box alignment auditing, collaborating across the UK and mainland Europe while building tools that are useful internationally.
+
+## Meet the Team
+
+<div class="mt-10 grid grid-cols-5 gap-x-6 gap-y-8 max-nav:grid-cols-6 max-nav:justify-items-center max-nav:gap-x-5 max-xs:grid-cols-1">
+  {people.map((person, i) => <PersonCard person={person} index={i} />)}
+</div>

@@ -1,0 +1,19 @@
+---
+interface Props {
+  href: string;
+  variant?: 'solid' | 'ghost';
+  class?: string;
+}
+const { href, variant = 'solid', class: className = '' } = Astro.props;
+
+const base =
+  'group inline-flex items-center gap-2.5 whitespace-nowrap border px-[22px] py-3.5 font-body text-sm tracking-[0.005em] transition-colors';
+const variants = {
+  solid: 'border-ink bg-ink text-cream hover:bg-transparent hover:text-ink',
+  ghost: 'border-ink bg-transparent text-ink hover:bg-ink hover:text-cream',
+};
+---
+<a href={href} class:list={[base, variants[variant], className]}>
+  <slot />
+  <span aria-hidden="true" class="transition-transform group-hover:translate-x-[3px]">→</span>
+</a>

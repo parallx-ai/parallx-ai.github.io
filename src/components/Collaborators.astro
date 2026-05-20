@@ -1,0 +1,75 @@
+---
+import Container from './Container.astro';
+import allOrgs from '../data/orgs.json';
+
+// Only orgs flagged `collaborator: true` appear in the logo strip.
+// Other entries in orgs.json (used for publication/tool collaboration
+// references) are ignored here.
+const orgs = allOrgs.filter((o) => o.collaborator);
+
+// Per-logo size balance — visual mass roughly equalized across the row.
+function logoSize(path: string): string {
+  if (path.includes('cohere')) return 'max-h-9 max-w-[180px]';
+  if (path.includes('ndif')) return 'max-h-20 max-w-[130px]';
+  if (path.includes('ucl')) return 'max-h-[60px] max-w-[200px]';
+  if (path.includes('technion')) return 'max-h-[72px] max-w-[200px]';
+  if (path.includes('neu')) return 'max-h-[95px] max-w-[95px]';
+  return 'max-h-[72px] max-w-[160px]';
+}
+---
+<section id="collaborators" class="py-24 max-nav:py-16">
+  <Container>
+    <div
+      class="mb-14 grid grid-cols-[1fr_2fr] items-end gap-[60px] max-nav:mb-9 max-nav:grid-cols-1 max-nav:gap-4"
+    >
+      <h2
+        class="text-balance font-display text-[32px] font-normal leading-[1.45] tracking-[-0.02em]"
+      >
+        Built with frontier labs and institutions
+      </h2>
+      <div class="max-w-[58ch] text-ink-2">
+        <p class="text-[18px]">
+          Our research and open infrastructure are co-developed with organizations at the
+          forefront of agentic evaluations.
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="grid grid-cols-5 max-nav:flex max-nav:flex-wrap max-nav:justify-center"
+      role="list"
+      aria-label="Collaborating organizations"
+    >
+      {
+        orgs.map((org) => (
+          <div
+            role="listitem"
+            class="group flex min-h-[140px] items-center justify-center px-6 py-5 max-nav:min-w-[200px] max-nav:flex-[0_0_33.333%] max-xs:basis-1/2"
+          >
+            {org.website ? (
+              <a href={org.website} rel="noopener" target="_blank" aria-label={org.name}>
+                <img
+                  src={org.logo_img_path}
+                  alt={org.name}
+                  class:list={[
+                    'object-contain opacity-[0.78] brightness-0 transition-opacity group-hover:opacity-100 dark:invert',
+                    logoSize(org.logo_img_path),
+                  ]}
+                />
+              </a>
+            ) : (
+              <img
+                src={org.logo_img_path}
+                alt={org.name}
+                class:list={[
+                  'object-contain opacity-[0.78] brightness-0 transition-opacity group-hover:opacity-100 dark:invert',
+                  logoSize(org.logo_img_path),
+                ]}
+              />
+            )}
+          </div>
+        ))
+      }
+    </div>
+  </Container>
+</section>
