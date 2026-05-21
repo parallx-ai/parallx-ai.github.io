@@ -2,49 +2,49 @@
   {
     "name": "National Deep Inference Fabric (NDIF)",
     "logo_img_path": "/assets/orgs/ndif.png",
-    "website": "",
+    "website": "https://ndif.us",
     "collaborator": true
   },
   {
     "name": "University College London (UCL)",
     "logo_img_path": "/assets/orgs/ucl.png",
-    "website": "",
+    "website": "https://www.ucl.ac.uk",
     "collaborator": true
   },
   {
     "name": "Northeastern University",
     "logo_img_path": "/assets/orgs/neu.png",
-    "website": "",
+    "website": "https://www.northeastern.edu",
     "collaborator": true
   },
   {
     "name": "Technion — Israel Institute of Technology",
     "logo_img_path": "/assets/orgs/technion.png",
-    "website": "",
+    "website": "https://www.technion.ac.il",
     "collaborator": true
   },
   {
     "name": "Cohere",
     "logo_img_path": "/assets/orgs/cohere.png",
-    "website": "",
+    "website": "https://cohere.ai",
     "collaborator": true
   },
   {
     "name": "Northeastern University",
     "logo_img_path": "/assets/orgs/northeastern.png",
-    "website": "",
+    "website": "https://baulab.info",
     "collaborator": false
   },
   {
     "name": "UK AI Security Institute",
     "logo_img_path": "/assets/orgs/uk-aisi.png",
-    "website": "",
+    "website": "https://www.aisi.gov.uk/",
     "collaborator": false
   },
   {
     "name": "SPAR",
     "logo_img_path": "/assets/orgs/spar.png",
-    "website": "",
+    "website": "https://sparai.org",
     "collaborator": false
   },
   {

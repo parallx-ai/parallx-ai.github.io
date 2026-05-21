@@ -146,23 +146,25 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
 }
 
 .prose p { max-width: 68ch; text-wrap: pretty; }
-.prose > p:first-of-type {
-  font-size: 20px;
-  line-height: 1.55;
-  color: var(--color-ink);
-}
 
 .prose strong { color: var(--color-ink); font-weight: 600; }
 .prose em { font-style: italic; }
 
 .prose a {
-  color: var(--color-ink);
-  border-bottom: 1px solid var(--color-rule);
-  transition: color 0.15s, border-color 0.15s;
+  color: var(--color-gold-deep);
+  border-bottom: 1px solid var(--color-gold);
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
 }
 .prose a:hover {
-  color: var(--color-gold-deep);
-  border-color: var(--color-gold);
+  color: var(--color-ink);
+  border-color: var(--color-ink);
+}
+/* Icon / logo links (e.g. people-card socials) keep their own styling
+   instead of the prose text-link underline. */
+.prose a:has(svg),
+.prose a:has(img) {
+  border-bottom: 0;
+  color: inherit;
 }
 
 .prose ul,

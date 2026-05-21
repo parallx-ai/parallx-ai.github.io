@@ -8,13 +8,19 @@ import allOrgs from '../data/orgs.json';
 const orgs = allOrgs.filter((o) => o.collaborator);
 
 // Per-logo size balance — visual mass roughly equalized across the row.
+// Each entry shrinks at narrow widths (max-nav <=1000px, max-xs <=600px).
 function logoSize(path: string): string {
-  if (path.includes('cohere')) return 'max-h-9 max-w-[180px]';
-  if (path.includes('ndif')) return 'max-h-20 max-w-[130px]';
-  if (path.includes('ucl')) return 'max-h-[60px] max-w-[200px]';
-  if (path.includes('technion')) return 'max-h-[72px] max-w-[200px]';
-  if (path.includes('neu')) return 'max-h-[95px] max-w-[95px]';
-  return 'max-h-[72px] max-w-[160px]';
+  if (path.includes('cohere'))
+    return 'max-h-9 max-w-[180px] max-nav:max-h-8 max-xs:max-h-[26px] max-xs:max-w-[130px]';
+  if (path.includes('ndif'))
+    return 'max-h-20 max-w-[130px] max-nav:max-h-16 max-xs:max-h-[52px] max-xs:max-w-[95px]';
+  if (path.includes('ucl'))
+    return 'max-h-[60px] max-w-[200px] max-nav:max-h-[52px] max-xs:max-h-[40px] max-xs:max-w-[140px]';
+  if (path.includes('technion'))
+    return 'max-h-[72px] max-w-[200px] max-nav:max-h-[62px] max-xs:max-h-[48px] max-xs:max-w-[140px]';
+  if (path.includes('neu'))
+    return 'max-h-[95px] max-w-[95px] max-nav:max-h-[80px] max-xs:max-h-[62px] max-xs:max-w-[62px]';
+  return 'max-h-[72px] max-w-[160px] max-nav:max-h-[62px] max-xs:max-h-[48px] max-xs:max-w-[120px]';
 }
 ---
 <section id="collaborators" class="py-24 max-nav:py-16">
@@ -44,7 +50,7 @@ function logoSize(path: string): string {
         orgs.map((org) => (
           <div
             role="listitem"
-            class="group flex min-h-[140px] items-center justify-center px-6 py-5 max-nav:min-w-[200px] max-nav:flex-[0_0_33.333%] max-xs:basis-1/2"
+            class="group flex min-h-[140px] items-center justify-center px-6 py-5 max-nav:min-h-[120px] max-nav:min-w-[200px] max-nav:flex-[0_0_33.333%] max-xs:min-h-[90px] max-xs:basis-1/2 max-xs:px-3"
           >
             {org.website ? (
               <a href={org.website} rel="noopener" target="_blank" aria-label={org.name}>

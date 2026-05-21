@@ -4,54 +4,59 @@
     "role": "Co-founder · Research Lead",
     "bio": "Associate Professor, UCL",
     "image": "/assets/people/mario.png",
-    "website": "",
-    "twitter": "",
-    "linkedin": "",
+    "website": "https://glnmario.github.io/",
+    "twitter": "https://x.com/glnmario",
+    "linkedin": "https://www.linkedin.com/in/mario-giulianelli",
     "huggingface": "",
-    "github": ""
+    "github": "",
+    "google_scholar": "https://scholar.google.com/citations?user=ABZghWYAAAAJ&hl=en"
   },
   {
     "name": "Gabriele Sarti",
     "role": "Co-founder · R&D Lead",
     "bio": "Postdoc, Northeastern",
     "image": "/assets/people/gabriele.jpg",
-    "website": "",
-    "twitter": "",
-    "linkedin": "",
-    "huggingface": "",
-    "github": ""
+    "website": "https://gsarti.com",
+    "twitter": "https://x.com/gsarti_",
+    "linkedin": "https://www.linkedin.com/in/gabrielesarti",
+    "huggingface": "https://huggingface.co/gsarti",
+    "github": "https://github.com/gsarti",
+    "google_scholar": "https://scholar.google.it/citations?user=sK0B_08AAAAJ&hl=en"
   },
   {
     "name": "David Bau",
     "role": "Trustee",
-    "bio": "Assistant Professor, Northeastern · PI, NDIF Project",
+    "bio": "Assistant Professor, Northeastern",
     "image": "/assets/people/david.png",
-    "website": "",
-    "twitter": "",
-    "linkedin": "",
+    "website": "https://baulab.info",
+    "twitter": "https://x.com/davidbau",
+    "linkedin": "https://www.linkedin.com/in/david-bau-4b8130",
     "huggingface": "",
-    "github": ""
+    "github": "https://github.com/ndif-team",
+    "google_scholar": "https://scholar.google.com/citations?user=CYI6cKgAAAAJ&hl=en"
   },
   {
     "name": "Yonatan Belinkov",
     "role": "Trustee",
     "bio": "Associate Professor, Technion",
     "image": "/assets/people/yonatan.png",
-    "website": "",
-    "twitter": "",
-    "linkedin": "",
+    "website": "https://belinkov.com/",
+    "twitter": "https://twitter.com/boknilev",
+    "linkedin": "https://www.linkedin.com/in/yonatan-belinkov-7601964",
     "huggingface": "",
-    "github": ""
+    "github": "",
+    "google_scholar": "https://scholar.google.com/citations?authorid=K-6ujU4AAAAJ"
   },
   {
     "name": "Seraphina Goldfarb-Tarrant",
     "role": "Trustee",
     "bio": "Head of AI Safety, Cohere",
     "image": "/assets/people/seraphina.jpg",
-    "website": "",
-    "twitter": "",
+    "website": "https://seraphinatarrant.github.io/",
+    "twitter": "https://x.com/seraphinagt",
     "linkedin": "",
     "huggingface": "",
-    "github": ""
+    "github": "",
+    "google_scholar": "https://scholar.google.com/citations?user=ywWpui8AAAAJ&hl=en"
   }
 ]

@@ -11,7 +11,7 @@
     "collaboration": ["spar", "ucl"],
     "news": [],
     "featured": true,
-    "figure": "ATTRIBUTION GRAPH",
+    "figure": "/assets/img/cognitive_maps.png",
     "paper_link": "https://arxiv.org/abs/2602.08964",
     "code_link": "https://github.com/SPAR-Telos/interp",
     "data_link": "https://huggingface.co/project-telos",

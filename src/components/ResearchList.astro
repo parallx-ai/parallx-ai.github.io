@@ -30,11 +30,14 @@ const { items } = Astro.props;
 // Build a slug -> org lookup keyed by the logo filename
 // (e.g. "/assets/orgs/ndif.png" -> "ndif"), so `collaboration: "ndif"`
 // in the data finds the right logo and accessible name.
-const orgsBySlug: Record<string, { name: string; logo: string }> =
+const orgsBySlug: Record<string, { name: string; logo: string; website: string }> =
   Object.fromEntries(
     orgs.map((o) => {
       const slug = o.logo_img_path.split('/').pop()?.replace(/\.\w+$/, '') ?? '';
-      return [slug.toLowerCase(), { name: o.name, logo: o.logo_img_path }];
+      return [
+        slug.toLowerCase(),
+        { name: o.name, logo: o.logo_img_path, website: o.website ?? '' },
+      ];
     }),
   );
 
@@ -94,7 +97,29 @@ const isImagePath = (s?: string) => !!s && /\.(png|jpe?g|webp|svg|gif)$/i.test(s
                     const org = orgsBySlug[slug.toLowerCase()];
                     if (!org) return null;
                     const maskStyle = `mask:url(${org.logo}) center / contain no-repeat;-webkit-mask:url(${org.logo}) center / contain no-repeat;`;
-                    return (
+                    return org.website ? (
+                      <a
+                        href={org.website}
+                        rel="noopener"
+                        target="_blank"
+                        aria-label={org.name}
+                        title={org.name}
+                        class="group/collab inline-block"
+                      >
+                        <span
+                          aria-hidden="true"
+                          class="inline-block bg-ink opacity-80 transition-colors group-hover/collab:bg-gold-deep group-hover/collab:opacity-100"
+                          style={maskStyle}
+                        >
+                          <img
+                            src={org.logo}
+                            alt=""
+                            aria-hidden="true"
+                            class="block h-6 max-w-[120px] opacity-0"
+                          />
+                        </span>
+                      </a>
+                    ) : (
                       <span
                         role="img"
                         aria-label={org.name}
@@ -179,27 +204,26 @@ const isImagePath = (s?: string) => !!s && /\.(png|jpe?g|webp|svg|gif)$/i.test(s
                 );
               })()}
             </div>
-            <div
-              class="relative flex aspect-[16/10] items-center justify-center overflow-hidden border border-rule-soft bg-paper max-nav:order-first max-nav:aspect-[16/8]"
-              aria-hidden="true"
-            >
-              {isImagePath(item.figure) ? (
-                <img
-                  src={item.figure}
-                  alt=""
-                  class="absolute inset-0 h-full w-full object-cover"
-                />
-              ) : (
-                <>
-                  <div class="absolute inset-0 bg-[repeating-linear-gradient(-38deg,transparent_0_9px,rgba(0,0,0,0.05)_9px_10px)]" />
-                  {item.figure && (
-                    <span class="relative border border-rule-soft bg-paper px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-3">
-                      {item.figure}
-                    </span>
-                  )}
-                </>
-              )}
-            </div>
+            {isImagePath(item.figure) ? (
+              <div
+                class="overflow-hidden border border-rule-soft bg-paper max-nav:order-first"
+                aria-hidden="true"
+              >
+                <img src={item.figure} alt="" class="block h-auto w-full" />
+              </div>
+            ) : (
+              <div
+                class="relative flex aspect-[16/10] items-center justify-center overflow-hidden border border-rule-soft bg-paper max-nav:order-first max-nav:aspect-[16/8]"
+                aria-hidden="true"
+              >
+                <div class="absolute inset-0 bg-[repeating-linear-gradient(-38deg,transparent_0_9px,rgba(0,0,0,0.05)_9px_10px)]" />
+                {item.figure && (
+                  <span class="relative border border-rule-soft bg-paper px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-3">
+                    {item.figure}
+                  </span>
+                )}
+              </div>
+            )}
           </article>
         ))
       }
