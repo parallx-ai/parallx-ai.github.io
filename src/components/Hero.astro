@@ -55,8 +55,9 @@ import Button from './Button.astro';
 </section>
 
 <script>
-  // Builds the hero attribution graph. Continuous propagation: each layer
-  // hands off to the next as it finishes drawing, with no idle pause.
+  // Builds the hero attribution graph. When idle it auto-propagates the
+  // gold circuit one layer every 1.5 seconds, stopping at the last layer;
+  // hovering pauses it and hands manual control to the per-layer hit areas.
   (function buildHeroGraph() {
     const svg = document.getElementById('hero-graph');
     if (!svg) return;
@@ -158,8 +159,43 @@ import Button from './Button.astro';
       });
     });
 
+    // Cumulative reveal: turn on later layers 1..n, leaving observation
+    // (layer 0) always lit.
+    function revealUpTo(n: number) {
+      for (let k = 1; k <= 3; k++) svg.classList.toggle('show-l' + k, k <= n);
+    }
+
+    // Idle autoplay — propagate the circuit one layer every 1.5 seconds,
+    // stopping fully revealed at the last layer (no loop). Skipped when the
+    // visitor prefers reduced motion.
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let autoLayer = 0;
+    let autoTimer: number | undefined;
+    function startAuto() {
+      if (autoTimer || reduce.matches || autoLayer >= 3) return;
+      autoTimer = window.setInterval(() => {
+        autoLayer += 1;
+        revealUpTo(autoLayer);
+        if (autoLayer >= 3) stopAuto();
+      }, 1500);
+    }
+    function stopAuto() {
+      window.clearInterval(autoTimer);
+      autoTimer = undefined;
+    }
+
+    // Hovering the figure pauses the autoplay and hands over to the
+    // per-layer hit areas; leaving it resumes the propagation from the
+    // last hovered layer through to the end.
+    svg.addEventListener('mouseenter', stopAuto);
+    svg.addEventListener('mouseleave', () => {
+      revealUpTo(autoLayer);
+      startAuto();
+    });
+
     // Per-layer hover hit areas. Hovering layer N reveals N and every
-    // earlier layer; leaving the SVG hides everything.
+    // earlier layer, and parks the autoplay there so it carries on from
+    // N when the pointer leaves; moving between areas restates the set.
     const bounds: [number, number][] = [
       [0, 160],
       [160, 320],
@@ -176,18 +212,16 @@ import Button from './Button.astro';
       r.setAttribute('height', '520');
       r.setAttribute('fill', 'transparent');
       r.addEventListener('mouseenter', () => {
-        for (let k = 0; k <= 3; k++) svg.classList.toggle('show-l' + k, k <= idx);
-      });
-      r.addEventListener('mouseleave', () => {
-        // Observation stays revealed at all times; only later layers reset.
-        for (let k = 1; k <= 3; k++) svg.classList.remove('show-l' + k);
+        autoLayer = idx;
+        revealUpTo(idx);
       });
       hits.appendChild(r);
     });
     svg.appendChild(hits);
 
     // Observation layer is always active so the page never reads as
-    // a fully grey graph on load.
+    // a fully grey graph on load; kick off the idle propagation loop.
     svg.classList.add('show-l0');
+    startAuto();
   })();
 </script>

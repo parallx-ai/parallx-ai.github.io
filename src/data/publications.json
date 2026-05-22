@@ -2,8 +2,8 @@
   {
     "title": "A Behavioural and Representational Evaluation of Goal-directedness in Language Model Agents.",
     "year": 2026,
-    "author": "Arghal et al., Sarti, Giulianelli",
-    "author_short": "Arghal et al., Sarti, Giulianelli",
+    "author": "Arghal et al.",
+    "author_short": "Arghal et al.",
     "venue": "ICML 2026",
     "abstract": "We develop cognitive map probes recovering an agent's approximate beliefs about its environment, and use them to prototype white-box evaluations explaining suboptimal actions in light of the agent's imperfect beliefs in simple 2D gridworlds.",
     "summary": "",
@@ -20,8 +20,8 @@
   {
     "title": "Agents of Chaos",
     "year": 2026,
-    "author": "Shapira et al. (incl. Sarti, Bau)",
-    "author_short": "Shapira et al. (incl. Sarti, Bau)",
+    "author": "Shapira et al.",
+    "author_short": "Shapira et al.",
     "venue": "Tech Report",
     "abstract": "A technical report on failure cases of stateful agentic systems based on the OpenClaw harness when interacting in a complex environment including productivity and messaging tools, other agents and multiple human red-teamers.",
     "summary": "",
@@ -42,8 +42,8 @@
   {
     "title": "Lessons from a Chimp: AI ‘Scheming’ and the Quest for Ape Language",
     "year": 2025,
-    "author": "Summerfield et al. (incl. Giulianelli)",
-    "author_short": "Summerfield et al. (incl. Giulianelli)",
+    "author": "Summerfield et al.",
+    "author_short": "Summerfield et al.",
     "venue": "",
     "abstract": "In this critical review about recent claims about misaligned goals in LM agents, we argue in favor of a research programme grounded in robust theoretical frameworks and better reporting standards.",
     "summary": "",
