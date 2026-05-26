@@ -1,11 +1,19 @@
 ---
 import Container from './Container.astro';
+import markDarkBgUrl from '../assets/logos/mark-dark-bg.webp?url';
 
 const linkBase = 'text-[#ece6d6] hover:text-gold-soft';
+// Astro inlines small webp imports as base64 data URLs, so referencing the
+// import twice would duplicate the whole encoded blob. Define it once on
+// the footer via a CSS variable; both children read it back.
+const footerStyle = `--mark-bg:url(${markDarkBgUrl})`;
 ---
-<footer class="relative overflow-hidden bg-[#0e0e0e] pt-20 pb-10 text-[#d9d3c4]">
+<footer
+  class="relative overflow-hidden bg-[#0e0e0e] pt-20 pb-10 text-[#d9d3c4]"
+  style={footerStyle}
+>
   <div
-    class="absolute -right-[60px] -bottom-[60px] h-80 w-80 bg-[url('/assets/logos/mark-dark-bg.png')] bg-contain bg-no-repeat opacity-20"
+    class="absolute -right-[60px] -bottom-[60px] h-80 w-80 bg-contain bg-no-repeat opacity-20 bg-[image:var(--mark-bg)]"
     aria-hidden="true"
   >
   </div>
@@ -20,7 +28,7 @@ const linkBase = 'text-[#ece6d6] hover:text-gold-soft';
           aria-label="Parallax Labs"
         >
           parall<span
-            class="-mb-[5px] inline-block h-9 w-9 bg-[url('/assets/logos/mark-dark-bg.png')] bg-contain bg-center bg-no-repeat"
+            class="-mb-[5px] inline-block h-9 w-9 bg-contain bg-center bg-no-repeat bg-[image:var(--mark-bg)]"
             aria-hidden="true"></span>
         </a>
         <p class="mt-4 max-w-[32ch] font-display text-[18px] leading-[1.35] text-[#ece6d6]">

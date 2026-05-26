@@ -1,4 +1,7 @@
 ---
+import { Image } from 'astro:assets';
+import wordmarkLight from '../assets/logos/wordmark-light.webp';
+import wordmarkDark from '../assets/logos/wordmark-dark.webp';
 import Container from './Container.astro';
 
 const links = [
@@ -13,17 +16,23 @@ const links = [
 >
   <Container class="flex h-[76px] items-center justify-between">
     <a href="/" class="inline-flex items-center gap-[2px]" aria-label="Parallax Labs">
-      <img
-        src="/assets/logos/wordmark-light.png"
+      <Image
+        src={wordmarkLight}
         alt="Parallax Labs"
-        width="120"
+        width={120}
+        densities={[1, 2, 3]}
+        loading="eager"
+        fetchpriority="high"
         class="block dark:hidden"
       />
-      <img
-        src="/assets/logos/wordmark-dark.png"
+      <Image
+        src={wordmarkDark}
         alt=""
         aria-hidden="true"
-        width="120"
+        width={120}
+        densities={[1, 2, 3]}
+        loading="eager"
+        fetchpriority="high"
         class="hidden dark:block"
       />
     </a>

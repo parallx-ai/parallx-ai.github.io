@@ -1,73 +1,73 @@
 [
   {
     "name": "National Deep Inference Fabric (NDIF)",
-    "logo_img_path": "/assets/orgs/ndif.png",
+    "slug": "ndif",
     "website": "https://ndif.us",
     "collaborator": true
   },
   {
     "name": "University College London (UCL)",
-    "logo_img_path": "/assets/orgs/ucl.png",
+    "slug": "ucl",
     "website": "https://www.ucl.ac.uk",
     "collaborator": true
   },
   {
     "name": "Northeastern University",
-    "logo_img_path": "/assets/orgs/neu.png",
+    "slug": "neu",
     "website": "https://www.northeastern.edu",
     "collaborator": true
   },
   {
-    "name": "Technion — Israel Institute of Technology",
-    "logo_img_path": "/assets/orgs/technion.png",
+    "name": "Technion \u2014 Israel Institute of Technology",
+    "slug": "technion",
     "website": "https://www.technion.ac.il",
     "collaborator": true
   },
   {
     "name": "Cohere",
-    "logo_img_path": "/assets/orgs/cohere.png",
+    "slug": "cohere",
     "website": "https://cohere.ai",
     "collaborator": true
   },
   {
     "name": "Northeastern University",
-    "logo_img_path": "/assets/orgs/northeastern.png",
+    "slug": "northeastern",
     "website": "https://baulab.info",
     "collaborator": false
   },
   {
     "name": "UK AI Security Institute",
-    "logo_img_path": "/assets/orgs/uk-aisi.png",
+    "slug": "uk-aisi",
     "website": "https://www.aisi.gov.uk/",
     "collaborator": false
   },
   {
     "name": "SPAR",
-    "logo_img_path": "/assets/orgs/spar.png",
+    "slug": "spar",
     "website": "https://sparai.org",
     "collaborator": false
   },
   {
     "name": "Vox",
-    "logo_img_path": "/assets/orgs/vox.png",
+    "slug": "vox",
     "website": "https://www.vox.com",
     "collaborator": false
   },
   {
     "name": "Science",
-    "logo_img_path": "/assets/orgs/science.png",
+    "slug": "science",
     "website": "https://www.science.org",
     "collaborator": false
   },
   {
     "name": "Wired",
-    "logo_img_path": "/assets/orgs/wired.png",
+    "slug": "wired",
     "website": "https://www.wired.com",
     "collaborator": false
   },
   {
     "name": "Die Zeit",
-    "logo_img_path": "/assets/orgs/zeit.png",
+    "slug": "zeit",
     "website": "https://www.zeit.de",
     "collaborator": false
   }

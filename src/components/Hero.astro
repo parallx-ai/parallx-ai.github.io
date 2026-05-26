@@ -2,28 +2,28 @@
 import Container from './Container.astro';
 import Button from './Button.astro';
 ---
-<section class="relative overflow-hidden pt-20 pb-[110px] max-nav:pt-8 max-nav:pb-10">
+<section class="relative overflow-hidden pt-20 pb-[110px] max-nav:pt-2 max-nav:pb-8">
   <Container class="grid grid-cols-[1.05fr_1fr] items-center gap-[60px] max-nav:grid-cols-1 max-nav:gap-6">
-    <div>
+    <div class="min-[450px]:max-nav:text-center">
       <h1
-        class="text-balance font-[Georgia,serif] text-[clamp(40px,5.5vw,84px)] font-normal leading-[1.02] tracking-[-0.025em]"
+        class="text-balance font-[Georgia,serif] text-[clamp(40px,5.5vw,84px)] font-normal leading-[1.02] tracking-[-0.025em] min-[450px]:max-nav:text-[55px]"
       >
         Parallax <span class="text-gold">Labs</span>
       </h1>
       <p
-        class="mt-7 max-w-[64ch] text-pretty font-display text-[clamp(20px,1.7vw,24px)] font-normal leading-[1.45] tracking-[-0.005em] text-ink-1"
+        class="mt-7 max-w-[40ch] text-pretty font-display text-[clamp(18px,1.5vw,22px)] font-normal leading-[1.45] tracking-[-0.005em] text-ink-1 min-[450px]:max-nav:mx-auto"
       >
-        We build tools and advance the science of <br> white-box auditing for
-        frontier AI agents.
+        Open science and tools for white-box auditing of frontier AI agents.
       </p>
-      <div class="mt-9 flex flex-wrap items-center gap-3.5">
-        <Button href="/about.html">About us</Button>
-        <Button href="mailto:info@parallx.ai" variant="ghost">Get in touch</Button>
+      <div class="mt-9 flex flex-wrap items-center gap-3.5 min-[450px]:max-nav:justify-center">
+        <Button href="/about.html" class="rounded-full">About us</Button>
+        <Button href="mailto:info@parallx.ai" variant="ghost" class="rounded-full">Get in touch</Button>
       </div>
     </div>
 
     <div
-      class="relative aspect-[1/0.85] max-nav:-order-1 max-nav:mx-auto max-nav:w-full max-nav:max-w-[560px]"
+      id="hero-figure"
+      class="relative aspect-[1/0.85] max-nav:-order-1 max-nav:mx-auto max-nav:w-full max-nav:max-w-[560px] min-[450px]:max-nav:hidden"
       aria-hidden="true"
     >
       <!-- Neural-graph motif derived from the brand banner. Topology: 8-8-8-1.
@@ -161,9 +161,9 @@ import Button from './Button.astro';
 
     // Cumulative reveal: turn on later layers 1..n, leaving observation
     // (layer 0) always lit.
-    function revealUpTo(n: number) {
+    const revealUpTo = (n: number) => {
       for (let k = 1; k <= 3; k++) svg.classList.toggle('show-l' + k, k <= n);
-    }
+    };
 
     // Idle autoplay — propagate the circuit one layer every 1.5 seconds,
     // stopping fully revealed at the last layer (no loop). Skipped when the

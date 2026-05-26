@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Fonts are loaded through Astro's experimental.fonts API (configured in
+   astro.config.mjs and mounted via <Font preload /> in Base.astro): it
+   fetches the requested fontsource families, subsets to latin, generates
+   metric-matched fallback @font-face to minimise font-swap CLS, and emits
+   preload links automatically. IBM Plex Mono is intentionally absent —
+   small uppercase labels render fine on the system mono stack. */
+
 /* Class-based dark mode: `dark:` variants fire when `.dark` is on
    <html> (or any ancestor). Toggled by the script in SiteNav. */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -32,7 +39,7 @@
   /* Type */
   --font-display: "Source Serif 4", "Source Serif Pro", Georgia, serif;
   --font-body: "IBM Plex Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
   /* Breakpoints — the design is desktop-first, so these are used
      mostly via the max-* variants (max-xs:, max-nav:). */
@@ -103,6 +110,33 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   font-size: var(--hero-label-size, 11px);
   opacity: 0;
   transition: opacity 0.4s ease;
+}
+/* On small screens the figure stacks and shrinks, so trim the side
+   gutter to give it more width and enlarge the labels. Labels are sized
+   in viewBox units (they scale down with the figure), hence the bump. */
+@media (max-width: 1000px) {
+  /* Drop the fixed desktop height and let the figure follow the graph's
+     own viewBox aspect ratio. Otherwise the graph is letterboxed inside
+     the taller box, leaving large empty gaps above and below. */
+  #hero-figure {
+    aspect-ratio: auto;
+  }
+  #hero-graph {
+    height: auto;
+  }
+  #hero-graph #g-labels text {
+    font-size: var(--hero-label-size-sm, 17px);
+  }
+}
+@media (max-width: 600px) {
+  /* Negative margins reclaim half of the Container's 2rem gutter; the
+     hero section is overflow-hidden so this can't cause a scrollbar. */
+  #hero-figure {
+    width: auto;
+    max-width: none;
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
 }
 
 /* =============================================================

@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import Container from './Container.astro';
 import Button from './Button.astro';
 import orgs from '../data/orgs.json';
@@ -27,18 +28,41 @@ interface Props {
 }
 const { items } = Astro.props;
 
-// Build a slug -> org lookup keyed by the logo filename
-// (e.g. "/assets/orgs/ndif.png" -> "ndif"), so `collaboration: "ndif"`
-// in the data finds the right logo and accessible name.
+// Bundled at build by Astro: every WebP under src/assets/orgs/ (used for
+// logo masks in the collaboration/news badges) and src/assets/img/ (full
+// figure thumbnails). The glob imports yield ImageMetadata; .src is the
+// final hashed URL that mask:url() needs, while figure thumbnails are
+// passed to <Image> so they get an optimised srcset.
+const orgLogos = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/orgs/*.webp',
+  { eager: true },
+);
+const figureImages = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/img/*.webp',
+  { eager: true },
+);
+function getLogoUrl(slug: string): string {
+  const meta = orgLogos[`../assets/orgs/${slug}.webp`]?.default;
+  if (!meta) {
+    throw new Error(`Missing logo for "${slug}" — add src/assets/orgs/${slug}.webp`);
+  }
+  return meta.src;
+}
+function getFigure(filename: string): ImageMetadata {
+  const meta = figureImages[`../assets/img/${filename}`]?.default;
+  if (!meta) {
+    throw new Error(`Missing figure "${filename}" — add src/assets/img/${filename}`);
+  }
+  return meta;
+}
+
+// `collaboration: "ndif"` in the data finds the matching logo here.
 const orgsBySlug: Record<string, { name: string; logo: string; website: string }> =
   Object.fromEntries(
-    orgs.map((o) => {
-      const slug = o.logo_img_path.split('/').pop()?.replace(/\.\w+$/, '') ?? '';
-      return [
-        slug.toLowerCase(),
-        { name: o.name, logo: o.logo_img_path, website: o.website ?? '' },
-      ];
-    }),
+    orgs.map((o) => [
+      o.slug.toLowerCase(),
+      { name: o.name, logo: getLogoUrl(o.slug), website: o.website ?? '' },
+    ]),
   );
 
 const tagBase =
@@ -46,20 +70,22 @@ const tagBase =
 const tagPlain = 'border-rule text-ink-2';
 const tagGold = 'border-gold text-gold-deep';
 
-// `figure` may be either a short caption ("ATTRIBUTION GRAPH") or a path
-// to an image asset; treat anything that ends in an image extension as
-// an actual image to render full-bleed inside the figure box.
-const isImagePath = (s?: string) => !!s && /\.(png|jpe?g|webp|svg|gif)$/i.test(s);
+// `figure` may be either a short caption ("ATTRIBUTION GRAPH") or a filename
+// like "cognitive_maps.webp" resolved against src/assets/img/; treat anything
+// that ends in an image extension as an actual image. Typed as a type guard
+// so callers get narrowed `string` (not `string | undefined`).
+const isImagePath = (s?: string): s is string =>
+  !!s && /\.(png|jpe?g|webp|svg|gif)$/i.test(s);
 ---
 <section id="research" class="border-t border-rule-soft py-24 max-nav:py-16">
   <Container>
     <div
       class="mb-14 grid grid-cols-[1fr_2fr] items-start gap-[60px] max-nav:mb-9 max-nav:grid-cols-1 max-nav:gap-4"
     >
-      <h2 class="text-balance font-display text-[32px] font-normal leading-[1.1] tracking-[-0.02em]">
+      <h2 class="text-balance font-display text-[28px] font-normal leading-[1.1] tracking-[-0.02em]">
         From first principles to frontier-scale audits
       </h2>
-      <div class="max-w-[58ch] pt-2 text-ink-2">
+      <div class="max-w-[58ch] pt-2">
         <p class="text-[18px]">
           We study how agents encode beliefs, goals, plans, and how these factors affect their behaviour at scale.
         </p>
@@ -206,14 +232,21 @@ const isImagePath = (s?: string) => !!s && /\.(png|jpe?g|webp|svg|gif)$/i.test(s
             </div>
             {isImagePath(item.figure) ? (
               <div
-                class="overflow-hidden border border-rule-soft bg-paper max-nav:order-first"
+                class="overflow-hidden border border-rule-soft bg-paper max-nav:order-first max-nav:mx-auto max-nav:max-w-[420px]"
                 aria-hidden="true"
               >
-                <img src={item.figure} alt="" class="block h-auto w-full" />
+                <Image
+                  src={getFigure(item.figure)}
+                  alt=""
+                  width={420}
+                  densities={[1, 2, 3]}
+                  loading="lazy"
+                  class="block h-auto w-full"
+                />
               </div>
             ) : (
               <div
-                class="relative flex aspect-[16/10] items-center justify-center overflow-hidden border border-rule-soft bg-paper max-nav:order-first max-nav:aspect-[16/8]"
+                class="relative flex aspect-[16/10] items-center justify-center overflow-hidden border border-rule-soft bg-paper max-nav:order-first max-nav:aspect-[16/8] max-nav:mx-auto max-nav:max-w-[420px]"
                 aria-hidden="true"
               >
                 <div class="absolute inset-0 bg-[repeating-linear-gradient(-38deg,transparent_0_9px,rgba(0,0,0,0.05)_9px_10px)]" />
