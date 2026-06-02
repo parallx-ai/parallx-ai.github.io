@@ -45,6 +45,10 @@
      mostly via the max-* variants (max-xs:, max-nav:). */
   --breakpoint-xs: 600px;
   --breakpoint-nav: 1000px;
+
+  /* Shared reading-column width for the article body (see `.prose > *`)
+     and the article header, so every block lines up on one measure. */
+  --prose-measure: 48rem;
 }
 
 /* =============================================================
@@ -148,7 +152,6 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   font-family: var(--font-body);
   font-size: 17.5px;
   line-height: 1.7;
-  text-align: center;
 }
 .prose > * + * { margin-top: 1.2em; }
 
@@ -182,18 +185,13 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
 
 .prose p { text-wrap: pretty; }
 
-/* Constrain and centre the readable prose elements (text, headings, lists,
-   blockquote) at a comfortable line length while leaving arbitrary block
-   children like <div> wrappers (e.g. the team grid in about.mdx) free to
-   span the full Container. */
-.prose > p,
-.prose > h2,
-.prose > h3,
-.prose > h4,
-.prose > ul,
-.prose > ol,
-.prose > blockquote {
-  max-width: 80ch;
+/* Constrain and centre every top-level block in the article (prose text,
+   headings, lists, blockquote, and arbitrary <div> wrappers like the team
+   grid in about.mdx) to one shared column. A fixed measure — not `ch`,
+   which is relative to each element's own font-size and would make large
+   headings/quotes wider than paragraphs — keeps every left edge aligned. */
+.prose > * {
+  max-width: var(--prose-measure);
   margin-inline: auto;
 }
 
@@ -224,11 +222,19 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
 .prose li + li { margin-top: 0.4em; }
 
 .prose blockquote {
-  margin-left: 0;
-  padding-left: 1.25em;
-  border-left: 2px solid var(--color-gold);
+  position: relative;
   color: var(--color-ink-1);
   font-style: italic;
+}
+/* Gold rule lives in the left gutter (not as padding/border on the box) so
+   the quote text stays flush with the paragraph text — both align to the
+   left edge of the shared --prose-measure column. */
+.prose blockquote::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: -1.25em;
+  border-left: 2px solid var(--color-gold);
 }
 
 .prose hr {

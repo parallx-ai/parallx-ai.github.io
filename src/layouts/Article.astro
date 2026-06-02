@@ -24,10 +24,9 @@ const { title, description, eyebrow, meta, screenLabel } = fm;
   <article>
     <header class="border-b border-rule-soft pt-20 pb-14 max-nav:pt-12 max-nav:pb-10">
       <Container>
-        {/* text-[17.5px] only sets the wrapper's font-size so `80ch` resolves
-            to the same width as inside `.prose` (which also uses 17.5px);
-            each child overrides its own font-size, so visually nothing changes. */}
-        <div class="mx-auto max-w-[80ch] text-center text-[17.5px]">
+        {/* Same fixed reading measure as the prose body so the header
+            (eyebrow / title / meta) lines up with the paragraphs below. */}
+        <div class="mx-auto max-w-[var(--prose-measure)]">
           {
             eyebrow && (
               <div class="mb-7 font-mono text-[11px] uppercase tracking-[0.14em] text-gold-deep">
