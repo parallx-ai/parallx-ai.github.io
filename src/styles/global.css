@@ -148,6 +148,7 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   font-family: var(--font-body);
   font-size: 17.5px;
   line-height: 1.7;
+  text-align: center;
 }
 .prose > * + * { margin-top: 1.2em; }
 
@@ -179,7 +180,22 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   font-family: var(--font-mono);
 }
 
-.prose p { max-width: 68ch; text-wrap: pretty; }
+.prose p { text-wrap: pretty; }
+
+/* Constrain and centre the readable prose elements (text, headings, lists,
+   blockquote) at a comfortable line length while leaving arbitrary block
+   children like <div> wrappers (e.g. the team grid in about.mdx) free to
+   span the full Container. */
+.prose > p,
+.prose > h2,
+.prose > h3,
+.prose > h4,
+.prose > ul,
+.prose > ol,
+.prose > blockquote {
+  max-width: 80ch;
+  margin-inline: auto;
+}
 
 .prose strong { color: var(--color-ink); font-weight: 600; }
 .prose em { font-style: italic; }
@@ -202,7 +218,7 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
 }
 
 .prose ul,
-.prose ol { max-width: 68ch; padding-left: 1.25em; }
+.prose ol { padding-left: 1.25em; }
 .prose ul { list-style: disc; }
 .prose ol { list-style: decimal; }
 .prose li + li { margin-top: 0.4em; }

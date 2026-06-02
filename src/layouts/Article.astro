@@ -23,30 +23,35 @@ const { title, description, eyebrow, meta, screenLabel } = fm;
   <SiteNav />
   <article>
     <header class="border-b border-rule-soft pt-20 pb-14 max-nav:pt-12 max-nav:pb-10">
-      <Container class="max-w-[760px]">
-        {
-          eyebrow && (
-            <div class="mb-7 font-mono text-[11px] uppercase tracking-[0.14em] text-gold-deep">
-              {eyebrow}
-            </div>
-          )
-        }
-        <h1
-          class="text-balance font-display text-[clamp(40px,5vw,72px)] font-normal leading-[1.05] tracking-[-0.025em]"
-        >
-          {title}
-        </h1>
-        {
-          meta && (
-            <div class="mt-10 font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3">
-              {meta}
-            </div>
-          )
-        }
+      <Container>
+        {/* text-[17.5px] only sets the wrapper's font-size so `80ch` resolves
+            to the same width as inside `.prose` (which also uses 17.5px);
+            each child overrides its own font-size, so visually nothing changes. */}
+        <div class="mx-auto max-w-[80ch] text-center text-[17.5px]">
+          {
+            eyebrow && (
+              <div class="mb-7 font-mono text-[11px] uppercase tracking-[0.14em] text-gold-deep">
+                {eyebrow}
+              </div>
+            )
+          }
+          <h1
+            class="text-balance font-display text-[clamp(40px,5vw,72px)] font-normal leading-[1.05] tracking-[-0.025em]"
+          >
+            {title}
+          </h1>
+          {
+            meta && (
+              <div class="mt-10 font-mono text-[11px] uppercase tracking-[0.08em] text-ink-3">
+                {meta}
+              </div>
+            )
+          }
+        </div>
       </Container>
     </header>
 
-    <Container class="prose max-w-[760px] pt-14 pb-24 max-nav:pt-10">
+    <Container class="prose pt-14 pb-24 max-nav:pt-10">
       <slot />
     </Container>
   </article>
