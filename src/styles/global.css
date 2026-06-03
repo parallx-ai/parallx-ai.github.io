@@ -194,6 +194,14 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   max-width: var(--prose-measure);
   margin-inline: auto;
 }
+/* Opt a top-level block out of the reading column to span the full
+   Container width (e.g. the team grid in about.mdx). Needs higher
+   specificity than `.prose > *`, and must stay unlayered to beat the
+   `max-w-*` Tailwind utilities living in @layer utilities. */
+.prose > .prose-full {
+  max-width: none;
+  margin-inline: 0;
+}
 
 .prose strong { color: var(--color-ink); font-weight: 600; }
 .prose em { font-style: italic; }
@@ -213,6 +221,17 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
 .prose a:has(img) {
   border-bottom: 0;
   color: inherit;
+}
+/* The team grid (about.mdx) carries its own link styling — clean text colour
+   plus the same thin `underline` the paper-title links use — so drop the
+   gold-coloured border-bottom prose treatment. Hover is restated here because
+   these unlayered rules outrank the layered `hover:*` utilities. */
+.prose .prose-full a {
+  border-bottom: 0;
+  color: inherit;
+}
+.prose .prose-full a:hover {
+  color: var(--color-gold-deep);
 }
 
 .prose ul,

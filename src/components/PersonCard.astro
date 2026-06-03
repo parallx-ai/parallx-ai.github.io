@@ -86,7 +86,20 @@ const socials = (
       ]}
     />
   </div>
-  <div class="mt-1.5 font-display text-[18px] leading-[1.2] tracking-[-0.01em]">{person.name}</div>
+  <div class="mt-1.5 font-display text-[18px] leading-[1.2] tracking-[-0.01em]">
+    {person.website ? (
+      <a
+        href={person.website}
+        rel="noopener"
+        target="_blank"
+        class="underline decoration-rule decoration-1 underline-offset-4 transition-colors hover:text-gold-deep hover:decoration-gold"
+      >
+        {person.name}
+      </a>
+    ) : (
+      person.name
+    )}
+  </div>
   <div class="font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-2">{person.role}</div>
   <div class="text-[12.5px] text-ink-1">{person.bio}</div>
 

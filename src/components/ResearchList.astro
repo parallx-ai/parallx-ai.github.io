@@ -235,14 +235,36 @@ const isImagePath = (s?: string): s is string =>
                 class="overflow-hidden border border-rule-soft bg-paper max-nav:order-first max-nav:mx-auto max-nav:max-w-[420px]"
                 aria-hidden="true"
               >
-                <Image
-                  src={getFigure(item.figure)}
-                  alt=""
-                  width={420}
-                  densities={[1, 2, 3]}
-                  loading="lazy"
-                  class="block h-auto w-full"
-                />
+                {item.paper_link ? (
+                  /* Redundant with the title link, so keep it out of the tab
+                     order (the wrapper is already aria-hidden) — mouse users
+                     can still click the figure to reach the paper. */
+                  <a
+                    href={item.paper_link}
+                    rel="noopener"
+                    target="_blank"
+                    tabindex="-1"
+                    class="block transition-opacity hover:opacity-90"
+                  >
+                    <Image
+                      src={getFigure(item.figure)}
+                      alt=""
+                      width={420}
+                      densities={[1, 2, 3]}
+                      loading="lazy"
+                      class="block h-auto w-full"
+                    />
+                  </a>
+                ) : (
+                  <Image
+                    src={getFigure(item.figure)}
+                    alt=""
+                    width={420}
+                    densities={[1, 2, 3]}
+                    loading="lazy"
+                    class="block h-auto w-full"
+                  />
+                )}
               </div>
             ) : (
               <div
