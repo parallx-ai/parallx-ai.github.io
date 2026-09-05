@@ -1,4 +1,4 @@
-# Parallax Labs
+# Parallax Website
 
 Built with [Astro 5](https://astro.build) and [Tailwind CSS v4](https://tailwindcss.com).
 

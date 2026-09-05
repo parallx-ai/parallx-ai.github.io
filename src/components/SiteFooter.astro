@@ -1,85 +1,48 @@
 ---
+import { Image } from 'astro:assets';
+import markDark from '../assets/logos/mark-dark-bg.webp';
 import Container from './Container.astro';
-import markDarkBgUrl from '../assets/logos/mark-dark-bg.webp?url';
 
-const linkBase = 'text-[#ece6d6] hover:text-gold-soft';
-// Astro inlines small webp imports as base64 data URLs, so referencing the
-// import twice would duplicate the whole encoded blob. Define it once on
-// the footer via a CSS variable; both children read it back.
-const footerStyle = `--mark-bg:url(${markDarkBgUrl})`;
+const year = new Date().getFullYear();
+const links = [
+  { label: 'X / Twitter', icon: 'twitter', url: 'https://x.com/ParallX_AI' },
+  { label: 'Bluesky', icon: 'bluesky', url: 'https://bsky.app/profile/parallx.ai' },
+  { label: 'GitHub', icon: 'github', url: 'https://github.com/parallx-ai' },
+  { label: 'Hugging Face', icon: 'huggingface', url: 'https://huggingface.co/parallx-ai' },
+  { label: 'Email', icon: 'email', url: 'mailto:info@parallx.ai' },
+];
 ---
 <footer
-  class="relative overflow-hidden bg-[#0e0e0e] pt-20 pb-10 text-[#d9d3c4]"
-  style={footerStyle}
+  class="bg-[#111] text-[#d9d3c4]"
 >
-  <div
-    class="absolute -right-[60px] -bottom-[60px] h-80 w-80 bg-contain bg-no-repeat opacity-20 bg-[image:var(--mark-bg)]"
-    aria-hidden="true"
-  >
-  </div>
   <Container>
     <div
-      class="relative z-10 grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-12 max-nav:grid-cols-2 max-nav:gap-9 max-xs:grid-cols-1"
+      class="grid min-h-[96px] grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-x-5 py-5 max-xs:min-h-0 max-xs:grid-cols-[44px_minmax(0,1fr)] max-xs:gap-x-4 max-xs:gap-y-3 max-xs:py-6"
     >
-      <div>
-        <a
-          href="/"
-          class="inline-flex items-center gap-[2px] font-display text-[34px] leading-none tracking-[-0.02em] text-[#ece6d6]"
-          aria-label="Parallax Labs"
-        >
-          parall<span
-            class="-mb-[5px] inline-block h-9 w-9 bg-contain bg-center bg-no-repeat bg-[image:var(--mark-bg)]"
-            aria-hidden="true"></span>
-        </a>
-        <p class="mt-4 max-w-[32ch] font-display text-[18px] leading-[1.35] text-[#ece6d6]">
-          Scalable white-box auditing <br> for frontier AI agents
-        </p>
-      </div>
-
-      <div>
-        <h4
-          class="mb-[18px] font-mono text-[11px] uppercase tracking-[0.14em] text-[#d9d3c4] opacity-[0.55]"
-        >
-          Parallax Labs
-        </h4>
-        <ul class="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
-          <li><a href="/about.html" class={linkBase}>About</a></li>
-          <li><a href="/#research" class={linkBase}>Research</a></li>
-          <li><a href="/#team" class={linkBase}>People</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h4
-          class="mb-[18px] font-mono text-[11px] uppercase tracking-[0.14em] text-[#d9d3c4] opacity-[0.55]"
-        >
-          Follow Us
-        </h4>
-        <ul class="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
-          <li><a href="https://x.com/ParallX_AI" rel="noopener" target="_blank" class={linkBase}>X / Twitter</a></li>
-          <li><a href="https://bsky.app/profile/parallx.ai" rel="noopener" target="_blank" class={linkBase}>Bluesky</a></li>
-          <li><a href="https://github.com/parallx-ai" rel="noopener" target="_blank" class={linkBase}>GitHub</a></li>
-          <li><a href="https://huggingface.co/parallx-ai" rel="noopener" target="_blank" class={linkBase}>Hugging Face</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h4
-          class="mb-[18px] font-mono text-[11px] uppercase tracking-[0.14em] text-[#d9d3c4] opacity-[0.55]"
-        >
-          Contact
-        </h4>
-        <ul class="m-0 flex list-none flex-col gap-2.5 p-0 text-sm">
-          <li><a href="mailto:info@parallx.ai" class={linkBase}>info@parallx.ai</a></li>
-        </ul>
-      </div>
-    </div>
-
-    <div
-      class="relative z-10 mt-16 flex items-center justify-between border-t border-white/[0.08] pt-6 font-mono text-[11px] tracking-[0.08em] text-[#b3ad9d]"
-    >
-      <span>© 2026 PARALLAX LABS</span>
-      <span>PARALLX.AI</span>
+      <a href="/" aria-label="Parallax home" class="shrink-0 self-center">
+        <Image src={markDark} alt="" width={44} densities={[1, 2, 3]} loading="lazy" class="block h-11 w-11" />
+      </a>
+      <p class="m-0 min-w-0 self-center text-[12.5px] leading-[1.55] text-[#aeb4ad]">
+        © {year} Parallax <span class="mx-1.5 text-white/25" aria-hidden="true">·</span> Parallax is a sponsored project of <a href="https://www.meridiancambridge.org/" rel="noopener" target="_blank" class="underline decoration-white/20 underline-offset-4 transition-colors hover:text-gold-soft">Meridian Impact CIC</a> (CN: 13653958)
+      </p>
+      <ul class="m-0 flex shrink-0 list-none items-center gap-0.5 p-0 max-xs:col-span-2 max-xs:row-start-2 max-xs:justify-self-center" aria-label="Parallax links">
+        {links.map((link) => (
+          <li>
+            <a
+              href={link.url}
+              rel={link.url.startsWith('mailto:') ? undefined : 'noopener'}
+              target={link.url.startsWith('mailto:') ? undefined : '_blank'}
+              aria-label={link.label}
+              title={link.label}
+              class="inline-flex p-2 text-[#aeb4ad] transition-colors hover:text-gold-soft"
+            >
+              <svg class:list={[link.icon === 'twitter' ? 'h-[15px] w-[15px]' : 'h-[17px] w-[17px]']} aria-hidden="true">
+                <use href={`#icon-${link.icon}`} />
+              </svg>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </Container>
 </footer>

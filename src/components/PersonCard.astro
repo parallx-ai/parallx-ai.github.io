@@ -15,44 +15,34 @@ interface Person {
 }
 interface Props {
   person: Person;
-  /** Position in a 5-person trustee row — drives responsive col-spans. */
-  index?: number;
+  variant?: 'team' | 'advisor';
+  headingLevel?: 3 | 4;
+  class?: string;
 }
-const { person, index = 0 } = Astro.props;
+const { person, variant = 'advisor', headingLevel = 3, class: className = '' } = Astro.props;
+const Heading = headingLevel === 3 ? 'h3' : 'h4';
 
-// Photo assets are bundled and optimised by Astro at build time. Glob-import
-// every WebP source under src/assets/people/ and look up by slug — this lets
-// people.json stay as data while astro:assets handles resizing, modern-format
-// negotiation, and `srcset` generation.
 const photos = import.meta.glob<{ default: ImageMetadata }>(
-  '../assets/people/*.webp',
+  ['../assets/people/*.webp', '../assets/people/*.png'],
   { eager: true },
 );
-const photo = photos[`../assets/people/${person.slug}.webp`]?.default;
+const photo =
+  photos[`../assets/people/${person.slug}.webp`]?.default ??
+  photos[`../assets/people/${person.slug}.png`]?.default;
 if (!photo) {
   throw new Error(
-    `Missing photo for "${person.slug}" — add src/assets/people/${person.slug}.webp`,
+    `Missing photo for "${person.slug}" — add src/assets/people/${person.slug}.webp or .png`,
   );
 }
 
-// Trustee row at <=1000px (6-col grid): first 2 span 3, rest span 2.
-// At <=600px collapses to a single column.
-const span = index < 2 ? 'max-nav:col-span-3' : 'max-nav:col-span-2';
-
-// Per-person framing tweaks for the circular crop. The default anchors at
-// `center 25%` (face roughly at viewport centre for typical headshots); some
-// photos need a different anchor, and Yonatan's needs an extra zoom too.
-function getZoom(name: string): string {
+function getFraming(name: string): string {
   const lower = name.toLowerCase();
-  if (lower.includes('yonatan'))
-    return 'scale-[1.50] origin-[center_10%]';
-  if (lower.includes('mario') || lower.includes('seraphina'))
-    return 'object-[center_65%] scale-[1.2]';
-  return 'object-[center_25%]';
+  if (lower.includes('yonatan')) return 'scale-[1.34] origin-[center_16%]';
+  if (lower.includes('mario') || lower.includes('seraphina')) return 'object-[center_62%] scale-[1.12]';
+  return 'object-[center_28%]';
 }
-const zoom = getZoom(person.name);
+const framing = getFraming(person.name);
 
-// Social links, in display order. Only populated ones are rendered.
 const socials = (
   [
     { key: 'website', label: 'Website' },
@@ -63,67 +53,64 @@ const socials = (
     { key: 'huggingface', label: 'Hugging Face' },
   ] as const
 )
-  .map((s) => ({ ...s, url: person[s.key] }))
-  .filter((s): s is typeof s & { url: string } => !!s.url);
+  .map((social) => ({ ...social, url: person[social.key] }))
+  .filter((social): social is typeof social & { url: string } => !!social.url);
 ---
-<div
-  class:list={[
-    'group flex w-full max-w-[240px] flex-col gap-2.5',
-    span,
-    'max-xs:col-span-1 max-xs:last:col-span-2 max-xs:max-w-[200px] max-xs:text-center',
-  ]}
->
-  <div class="relative mx-auto aspect-square w-full max-w-[160px] overflow-hidden rounded-full border border-rule-soft bg-paper max-xs:max-w-[110px]">
-    <Image
-      src={photo}
-      alt={person.name}
-      width={640}
-      quality={90}
-      loading="lazy"
-      class:list={[
-        'absolute inset-0 h-full w-full object-cover [filter:saturate(0.85)_contrast(0.98)] transition-[filter] group-hover:[filter:saturate(1)_contrast(1)]',
-        zoom,
-      ]}
-    />
-  </div>
-  <div class="mt-1.5 font-display text-[18px] leading-[1.2] tracking-[-0.01em]">
-    {person.website ? (
-      <a
-        href={person.website}
-        rel="noopener"
-        target="_blank"
-        class="underline decoration-rule decoration-1 underline-offset-4 transition-colors hover:text-gold-deep hover:decoration-gold"
-      >
-        {person.name}
-      </a>
-    ) : (
-      person.name
-    )}
-  </div>
-  <div class="font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-2">{person.role}</div>
-  <div class="text-[12.5px] text-ink-1">{person.bio}</div>
 
-  {
-    socials.length > 0 && (
-      <div class="mt-0.5 flex flex-wrap items-center gap-2.5 max-xs:justify-center">
-        {socials.map((s) => (
+<article data-person={person.slug} class:list={['group/person min-w-0', variant === 'team' ? 'max-w-[250px]' : 'max-w-[220px]', className]}>
+  <div class="relative mb-4">
+    <div
+      class:list={[
+        'relative mx-auto aspect-square overflow-hidden rounded-full border border-rule bg-paper',
+        variant === 'team' ? 'w-full max-w-[160px] max-xs:max-w-[124px]' : 'w-full max-w-[132px] max-xs:max-w-[112px]',
+      ]}
+    >
+      <Image
+        src={photo}
+        alt={person.name}
+        width={720}
+        quality={92}
+        loading="lazy"
+        class:list={[
+          'absolute inset-0 h-full w-full object-cover [filter:saturate(0.78)_contrast(0.98)] transition duration-500 group-hover/person:[filter:saturate(0.96)_contrast(1)]',
+          framing,
+        ]}
+      />
+    </div>
+  </div>
+
+  <div class="border-b border-rule-soft pb-3 text-center">
+    <div>
+      <Heading class="font-display text-[clamp(20px,2vw,24px)] font-semibold leading-[1.35] tracking-[-0.015em]">
+        {person.website ? (
+          <a href={person.website} rel="noopener" target="_blank" class="transition-colors hover:text-gold-deep">
+            {person.name}
+          </a>
+        ) : (
+          person.name
+        )}
+      </Heading>
+      {variant === 'team' && <p class="mt-1 text-[clamp(13px,1.25vw,15px)] font-medium text-ink-2">{person.role}</p>}
+      <p class="mt-1 text-[clamp(14px,1.4vw,17px)] leading-[1.45] text-ink-3">{person.bio}</p>
+    </div>
+
+    {socials.length > 0 && (
+      <div class="mt-2 flex flex-wrap items-center justify-center gap-2">
+        {socials.map((social) => (
           <a
-            href={s.url}
+            href={social.url}
             rel="noopener"
             target="_blank"
-            aria-label={`${person.name} — ${s.label}`}
-            title={s.label}
+            aria-label={`${person.name} — ${social.label}`}
+            title={social.label}
             class="text-ink-3 transition-colors hover:text-gold-deep"
           >
-            <svg
-              class={s.key === 'twitter' ? 'h-[15px] w-[15px]' : 'h-[17px] w-[17px]'}
-              aria-hidden="true"
-            >
-              <use href={`#icon-${s.key}`} />
+            <svg class={social.key === 'twitter' ? 'h-[14px] w-[14px]' : 'h-[16px] w-[16px]'} aria-hidden="true">
+              <use href={`#icon-${social.key}`} />
             </svg>
           </a>
         ))}
       </div>
-    )
-  }
-</div>
+    )}
+  </div>
+</article>

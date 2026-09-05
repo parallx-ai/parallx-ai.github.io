@@ -2,17 +2,18 @@
 import Base from '../layouts/Base.astro';
 import SiteNav from '../components/SiteNav.astro';
 import Hero from '../components/Hero.astro';
-import MissionStrip from '../components/MissionStrip.astro';
-import Collaborators from '../components/Collaborators.astro';
 import ResearchList from '../components/ResearchList.astro';
-import Team from '../components/Team.astro';
+import NewsList from '../components/NewsList.astro';
+import PeopleGroups from '../components/PeopleGroups.astro';
+import Collaborators from '../components/Collaborators.astro';
+import Container from '../components/Container.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import TweaksPanel from '../components/TweaksPanel.astro';
 
 import publications from '../data/publications.json';
 import tools from '../data/tools.json';
+import news from '../data/news.json';
 
-// The Featured Research strip renders publications and tools as a single
+// Our Work renders publications and tools as a single
 // list of cards. Only entries with `featured: true` are surfaced here.
 // Publications expose `abstract`, tools expose `summary` — normalise to
 // a shared `text` field so one card markup handles both.
@@ -22,15 +23,19 @@ const research = [
 ];
 ---
 <Base
-  title="Parallax Labs"
-  description="Parallax Labs is a non-profit research organisation making scalable white-box auditing of frontier AI a reality."
+  title="Parallax"
+  description="Parallax is a non-profit research lab building the science of belief elicitation for white-box auditing of frontier AI agents."
   screenLabel="Home"
 >
   <SiteNav />
   <Hero />
-  <MissionStrip />
-  <Collaborators />
   <ResearchList items={research} />
-  <Team />
+  <NewsList items={news} />
+  <section class="py-24 max-nav:py-16">
+    <Container>
+      <PeopleGroups headingLevel={2} />
+      <Collaborators class="mt-20" />
+    </Container>
+  </section>
   <SiteFooter />
 </Base>

@@ -9,7 +9,7 @@
     "name": "University College London (UCL)",
     "slug": "ucl",
     "website": "https://www.ucl.ac.uk",
-    "collaborator": true
+    "collaborator": false
   },
   {
     "name": "Northeastern University",

@@ -1,7 +1,8 @@
 [
   {
     "name": "Mario Giulianelli",
-    "role": "Co-founder · Research Lead",
+    "role": "Co-founder · Scientific Director",
+    "group": "team",
     "bio": "Associate Professor, UCL",
     "slug": "mario",
     "website": "https://glnmario.github.io/",
@@ -13,7 +14,8 @@
   },
   {
     "name": "Gabriele Sarti",
-    "role": "Co-founder · R&D Lead",
+    "role": "Co-founder · Technical Director",
+    "group": "team",
     "bio": "Postdoc, Northeastern",
     "slug": "gabriele",
     "website": "https://gsarti.com",
@@ -25,7 +27,8 @@
   },
   {
     "name": "David Bau",
-    "role": "Trustee",
+    "role": "Advisor",
+    "group": "advisors",
     "bio": "Assistant Professor, Northeastern",
     "slug": "david",
     "website": "https://baulab.info",
@@ -37,7 +40,8 @@
   },
   {
     "name": "Yonatan Belinkov",
-    "role": "Trustee",
+    "role": "Advisor",
+    "group": "advisors",
     "bio": "Associate Professor, Technion",
     "slug": "yonatan",
     "website": "https://belinkov.com/",
@@ -49,7 +53,8 @@
   },
   {
     "name": "Seraphina Goldfarb-Tarrant",
-    "role": "Trustee",
+    "role": "Advisor",
+    "group": "advisors",
     "bio": "Head of AI Safety, Cohere",
     "slug": "seraphina",
     "website": "https://seraphinatarrant.github.io/",
@@ -58,5 +63,18 @@
     "huggingface": "",
     "github": "",
     "google_scholar": "https://scholar.google.com/citations?user=ywWpui8AAAAJ&hl=en"
+  },
+  {
+    "name": "Cozmin Ududec",
+    "role": "Advisor",
+    "group": "advisors",
+    "bio": "Head of Science of Evaluation, UK AISI",
+    "slug": "cozmin",
+    "website": "https://cozster.github.io",
+    "twitter": "https://x.com/CUdudec",
+    "linkedin": "",
+    "huggingface": "",
+    "github": "",
+    "google_scholar": "https://scholar.google.com/citations?user=it6IXqgAAAAJ&hl=en"
   }
 ]

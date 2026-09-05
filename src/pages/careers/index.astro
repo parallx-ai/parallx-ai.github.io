@@ -1,0 +1,60 @@
+---
+import Base from '../../layouts/Base.astro';
+import Container from '../../components/Container.astro';
+import SiteNav from '../../components/SiteNav.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+
+const roles = [
+  {
+    title: 'Founding Member of Technical Staff',
+    href: '/careers/founding-member-of-technical-staff.html',
+    summary: 'Own ambitious research on white-box auditing methods and the infrastructure that makes those methods useful in frontier evaluations.',
+    details: ['Remote, Europe/UK (London, UK in-person preferred)', 'Full-time', '£75,000–£100,000'],
+  },
+  {
+    title: 'Founding Operations Manager',
+    href: '/careers/founding-operations-manager.html',
+    summary: 'Build the operational foundations that let a small, collaborative research team do rigorous work and scale responsibly.',
+    details: ['Remote, Europe/UK (London, UK in-person preferred)', 'Full-time', '£45,000–£65,000'],
+  },
+];
+---
+<Base title="Join Parallax" description="Open positions at Parallax, a non-profit research lab developing open methods and infrastructure for white-box auditing of frontier AI systems." screenLabel="Join Parallax">
+  <SiteNav />
+  <main>
+    <header class="pt-20 pb-4 max-nav:pt-12 max-nav:pb-3">
+      <Container>
+        <div class="max-w-[820px]">
+          <h1 class="text-balance font-display text-[clamp(50px,7vw,88px)] font-semibold leading-[0.98] tracking-[-0.05em]">Join Parallax</h1>
+          <p class="mt-8 max-w-[680px] text-[clamp(19px,2vw,24px)] leading-[1.5] text-ink-1">Help us make evidence about AI systems’ internal beliefs, goals, and plans a practical part of frontier evaluations.</p>
+        </div>
+      </Container>
+    </header>
+
+    <section class="border-rule-soft">
+      <Container>
+        <div class="pt-10 pb-16 max-nav:pt-8 max-nav:pb-12">
+          <div class="border-t border-rule">
+            {roles.map((role) => (
+              <div class="border-b border-rule py-8 max-xs:py-7">
+                <div class="min-w-0">
+                  <h2 class="text-balance font-display text-[clamp(25px,3vw,34px)] font-semibold leading-[1.12] tracking-[-0.03em]">
+                    <a href={role.href} class="underline decoration-rule decoration-1 underline-offset-[5px] transition-colors hover:text-gold-deep hover:decoration-gold">{role.title}</a>
+                  </h2>
+                  <p class="mt-3 max-w-[680px] text-[15.5px] leading-[1.6] text-ink-1">{role.summary}</p>
+                  <p class="mt-5 text-[13.5px] text-ink-2">
+                    <span>{role.details[0]}</span>
+                    <span class="whitespace-nowrap"><span class="mx-2 inline-block" aria-hidden="true">·</span>{role.details[1]}</span>
+                    <span class="whitespace-nowrap"><span class="mx-2 inline-block" aria-hidden="true">·</span>{role.details[2]}</span>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Container>
+    </section>
+
+  </main>
+  <SiteFooter />
+</Base>

@@ -1,52 +1,39 @@
 ---
 layout: ../layouts/Article.astro
-title: Introducing Parallax Labs 
-description: Parallax Labs is a non-profit research organisation making white-box alignment auditing a core layer of frontier AI evaluation.
-eyebrow: Blog
-meta: May 2026 - Mario Giulianelli and Gabriele Sarti
+title: Introducing Parallax
+description: Parallax is a non-profit research lab building the science of belief elicitation for white-box auditing of frontier AI agents.
+screenLabel: About
 ---
-
-import PersonCard from '../components/PersonCard.astro';
-import people from '../data/people.json';
 
 > **Parallax** (n.): the way an object's apparent position shifts when seen from two viewpoints, the basis for perceiving depth.
 
-Frontier evaluations today see AI agents from a single viewpoint: their behaviour. When an agent fails a safety task, evaluators can read its transcript, inspect its tool calls, and review what it said it was doing. What they cannot do is tell the difference between an agent that misunderstood the situation, an agent that mispredicted the consequence of its actions, or an agent pursuing a goal it never verbalised. From a single viewpoint, these failures may look identical.
+Modern deployment practices for frontier AI systems rely heavily on black-box evaluations as a proxy for quality assurance. As recent security incidents involving agents have shown, however, these approaches offer only a myopic perspective on model failures, since they focus exclusively on behaviours while ignoring the underlying causes that drive them.
 
-Parallax Labs is a non-profit research organisation building the second viewpoint. Our mission is to **make white-box auditing of agents' internal beliefs, goals, and plans a core layer of frontier AI evaluations**. By combining behavioural evidence with evidence drawn from a model's internals, evaluators gain the depth of analysis that behaviour alone cannot provide.
+Parallax is a non-profit research lab developing a second, deeper view of model behaviour. Our mission is to **make white-box auditing of agents' internal beliefs, goals, and plans a core layer of frontier AI evaluations** by developing methods and infrastructure that support its use at scale. By combining behavioural evidence with evidence drawn from a model's internals, we want to provide the depth of analysis that behaviour alone cannot.
 
-### The problem
+## The problem
 
-Frontier AI evaluations are becoming increasingly open-ended and realistic. Agents are tested on long-horizon tasks, in complex environments, with sophisticated scaffolds and growing tool affordances. Yet **most deployment evaluations remain primarily behavioural**: they measure task success, inspect transcripts, and analyse what models verbalise. These signals help spot failures and form hypotheses, but they cannot reliably distinguish between competing explanations for the same observed behaviour.
+Frontier AI evaluations are becoming increasingly open-ended and realistic. Agents are tested on long-horizon tasks, in complex environments, with sophisticated scaffolds and growing tool affordances. Yet **most deployment evaluations remain primarily behavioural**, measuring task success and occasionally inspecting transcripts and (when possible) model reasoning. These signals help spot failures and form hypotheses, but they cannot reliably distinguish between competing explanations, e.g. misaligned priorities—"I am aware that my behaviour is inappropriate, but the instructions I was provided with take precedence"—from behaviour induced by, for example, evaluation awareness—"This is a test with mocked entities and no real consequences; I must take all measures to excel." Distinguishing such scenarios is essential for designing preventive interventions and post-hoc mitigations.
 
-Through our work in this field, we observed that this gap is widening. As agents take on long-horizon tasks with greater autonomy, evaluators are increasingly being asked to make claims about internal commitments such as deception, evaluation awareness and goal conflicts on the basis of behavioural traces alone. Our [previous work](https://arxiv.org/abs/2507.03409) argued that this research programme risks repeating the overattribution of intent, reliance on anecdote, and the absence of a theoretical framework for distinguishing competing causal explanations that characterised 1970s studies in primate language. Recent related work has separately documented [conflicting goals affecting model propensities](https://arxiv.org/abs/2604.21098), [natural emergent misalignment from reward hacking](https://www.lesswrong.com/posts/2ANCyejqxfqK2obEj/some-natural-emergent-misalignment-from-reward-hacking-in)  and the need of [white-box evidence for deception detection](https://www.far.ai/news/ai-deception-white-box). Where agents may exhibit evaluation awareness, unverbalised reasoning or deceptive actions, behavioural evidence alone is becoming increasingly inadequate.
+Through our work in this field, we observed that this gap is widening. As agents take on long-horizon tasks with greater autonomy, evaluators are increasingly being asked to make claims about internal commitments such as deception, evaluation awareness and goal conflicts on the basis of behavioural traces alone. Our [previous work](https://arxiv.org/abs/2507.03409) argued that this research programme risks repeating the overattribution of intent, reliance on anecdote, and the absence of a theoretical framework for distinguishing competing causal explanations that characterised 1970s studies in primate language. Recent related work has separately documented [conflicting goals affecting model propensities](https://arxiv.org/abs/2604.21098), [natural emergent misalignment from reward hacking](https://www.lesswrong.com/posts/2ANCyejqxfqK2obEj/some-natural-emergent-misalignment-from-reward-hacking-in) and the need for [white-box evidence for deception detection](https://www.far.ai/news/ai-deception-white-box). Where agents may exhibit evaluation awareness, unverbalised reasoning or deceptive actions, behavioural evidence alone is becoming increasingly inadequate.
 
-Parallax mission is to close this gap, allowing evaluators to easily identify, explain, and predict safety-critical failures in terms of the underlying mechanisms producing them.
+Parallax's mission is to close this gap, allowing evaluators to easily identify, explain, and predict safety-critical failures in terms of the underlying mechanisms producing them.
+We pursue two closely related strands of work.
 
-### Our strategy
-
-We pursue two mutually reinforcing strands of work.
-
-**A science of white-box alignment auditing.** We develop methods that let evaluators move from observing behaviour to testing explanations of what produced it. Given a failure, an evaluator should be able to ask counterfactual questions: did the agent misread the state of the environment? Mispredict the consequence of an action? Pursue an objective different from the one specified? Answering these requires methods that identify and measure model-internal variables linking inputs --- prompt, scaffold, tools, affordances --- to behaviour, then test whether interventions on those variables causally change the agent's actions. Our priority is scaling these methods to long-horizon trajectories and large models, where they are most needed and least mature.
+**A science of belief elicitation.** We develop methods that let evaluators move from observing behaviour to testing explanations of what produced it. Given a failure, an evaluator should be able to ask counterfactual questions: did the agent misread the state of the environment? Mispredict the consequence of an action? Pursue an objective different from the one specified? Answering these requires methods that identify and measure model-internal variables linking inputs—prompt, scaffold, tools, and affordances—to behaviour, then test whether interventions on those variables causally change the agent's actions. Our priority is scaling these methods to long-horizon trajectories and large models, where they are most needed and least mature.
 
 **Open white-box auditing infrastructure for evaluators.** Evaluation frameworks like [Inspect](https://inspect.aisi.org.uk), paired with auditing tools such as [Petri](https://meridianlabs-ai.github.io/inspect_petri/) and [Docent](https://transluce.org/introducing-docent), already support scalable black-box analyses, producing rich behavioural records. Interpretability tools like [NNsight](https://nnsight.net) and [NDIF](https://ndif.us) make white-box methods practical for large models, but currently lack a direct connection with common evaluation workflows, making white-box auditing hard to conduct in practice.
 
-Our tools will empower reproducible audits of frontier open-weight systems, enabling online and post-hoc localization and extraction of internal evidence across safety-relevant tasks. We foresee our suite of standardized white-box tools workflows **enabling strong automation in the white-box auditing process**, in particular for labour-heavy tasks such as identifying candidate explanatory variables, testing their causal influence on behaviour, and comparing competing explanations. Ensuring agents can use our methods and tools effectively will be a top priority, enabling our agentic auditing capacity to grow as the complexity of realistic evaluation settings increases.
+Our tools will empower reproducible audits of frontier open-weight systems, enabling online and post-hoc localisation and extraction of internal evidence across safety-relevant tasks. We foresee our suite of standardised white-box tools and workflows **supporting substantial automation of the white-box auditing process**, in particular for labour-heavy tasks such as identifying candidate explanatory variables, testing their causal influence on behaviour, and comparing competing explanations. Ensuring agents can use our methods and tools effectively will be a top priority, enabling our agentic auditing capacity to grow as the complexity of realistic evaluation settings increases.
 
-### Audience and impact
+## Audience and impact
 
-Our methods and infrastructure are open-source and built for the entire frontier evaluation ecosystem: government evaluation bodies, independent auditors, frontier model developers, and AI safety researchers. We treat white-box auditing as a public good, bringing together a cohesive evaluations and interpretability ecosystem to ensure our work benefits the broader research community and the public.
+Our methods and infrastructure are open-source and built for the entire frontier evaluation ecosystem: government evaluation bodies, independent auditors, frontier model developers, and AI safety researchers. We treat white-box auditing as a public good, bringing together a cohesive evaluation and interpretability ecosystem to ensure our work benefits the broader research community and the public.
 
-We will initially focus on delivering a working integration between a leading interpretability framework and a widely-used evaluation harness, and to publish a re-audit of a frontier open-weight model demonstrating an explanatory finding that behavioural evidence alone could not produce. Beyond that, our mark of success is white-box auditing becoming a standard layer of frontier AI evaluation, with leading evaluators reaching for our tools as a default in their day-to-day workflows.
+We will initially focus on delivering a working integration between a leading interpretability framework and a widely used evaluation harness, and publishing a re-audit of a frontier open-weight model demonstrating an explanatory finding that behavioural evidence alone could not produce. Beyond that, our mark of success is white-box auditing becoming a standard layer of frontier AI evaluation, with leading evaluators reaching for our tools as a default in their day-to-day workflows.
 
-### Why us
+## Why Parallax
 
 Parallax is best positioned to make white-box alignment auditing practical. Our team combines expertise in frontier AI evaluation, AI safety, mechanistic interpretability, research infrastructure, and interface design, with previous experience across government, academia, and industry. This gives us direct understanding of **what evaluators need in realistic safety assessments, what current interpretability methods can and cannot yet provide, and how to integrate them into interfaces and workflows that users will actually adopt**.
 
-Our non-profit structure is not incidental. Much of the agent-monitoring and interpretability infrastructure being built today sits inside for-profit companies, where commercial priorities will eventually shape what gets open-sourced and what does not. Parallax is structured to keep the foundations public. We also aim to make Europe a leading centre of expertise in alignment auditing, supporting institutions across the UK and mainland Europe while building tools that serve the global ecosystem.
-
-## Meet the Team
-
-<div class="prose-full mt-10 grid grid-cols-5 gap-x-6 gap-y-8 max-nav:grid-cols-6 max-nav:justify-items-center max-nav:gap-x-5 max-xs:grid-cols-2">
-  {people.map((person, i) => <PersonCard person={person} index={i} />)}
-</div>
+Our public-interest structure is not incidental. Much of the agent-monitoring and interpretability infrastructure being built today sits inside for-profit companies, where commercial priorities will eventually shape what gets open-sourced and what does not. Sponsorship through [Meridian Impact CIC](https://meridiancambridge.org) supports Parallax while we prepare to become an independent organisation, structured to keep the foundations public. We also aim to make Europe a leading centre of expertise in alignment auditing, supporting institutions across the UK and mainland Europe while building tools that serve the global ecosystem.

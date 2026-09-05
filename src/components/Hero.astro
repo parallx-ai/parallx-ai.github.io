@@ -1,227 +1,370 @@
 ---
 import Container from './Container.astro';
-import Button from './Button.astro';
 ---
-<section class="relative overflow-hidden pt-20 pb-[110px] max-nav:pt-2 max-nav:pb-8">
-  <Container class="grid grid-cols-[1.05fr_1fr] items-center gap-[60px] max-nav:grid-cols-1 max-nav:gap-6">
-    <div class="min-[450px]:max-nav:text-center">
-      <h1
-        class="text-balance font-[Georgia,serif] text-[clamp(40px,5.5vw,84px)] font-normal leading-[1.02] tracking-[-0.025em] min-[450px]:max-nav:text-[55px]"
-      >
-        Parallax <span class="text-gold">Labs</span>
-      </h1>
-      <p
-        class="mt-7 max-w-[40ch] text-pretty font-display text-[clamp(18px,1.5vw,22px)] font-normal leading-[1.45] tracking-[-0.005em] text-ink-1 min-[450px]:max-nav:mx-auto"
-      >
-        Open science and tools for white-box auditing of frontier AI agents.
-      </p>
-      <div class="mt-9 flex flex-wrap items-center gap-3.5 min-[450px]:max-nav:justify-center">
-        <Button href="/about.html" class="rounded-full">About us</Button>
-        <Button href="mailto:info@parallx.ai" variant="ghost" class="rounded-full">Get in touch</Button>
-      </div>
-    </div>
 
-    <div
-      id="hero-figure"
-      class="relative aspect-[1/0.85] max-nav:-order-1 max-nav:mx-auto max-nav:w-full max-nav:max-w-[560px] min-[450px]:max-nav:hidden"
-      aria-hidden="true"
-    >
-      <!-- Neural-graph motif derived from the brand banner. Topology: 8-8-8-1.
-           Highlighted "circuit" fans 5 -> 3 -> 2 -> 1, animated as a propagating attribution graph. -->
-      <svg id="hero-graph" viewBox="0 0 600 520" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#e8c97a" stop-opacity="0.85"></stop>
-            <stop offset="60%" stop-color="#c89a2a" stop-opacity="0.18"></stop>
-            <stop offset="100%" stop-color="#c89a2a" stop-opacity="0"></stop>
-          </radialGradient>
-          <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.0"></feGaussianBlur>
-          </filter>
-        </defs>
-        <g id="g-edges-base"></g>
-        <g id="g-edges-hot" filter="url(#soft)"></g>
-        <g id="g-nodes"></g>
-        <g id="g-labels" font-family="IBM Plex Mono, monospace" letter-spacing="1.2">
-          <text x="80" y="500" text-anchor="middle">OBSERVATION</text>
-          <text x="240" y="500" text-anchor="middle">BELIEF</text>
-          <text x="400" y="500" text-anchor="middle">GOAL</text>
-          <text x="560" y="500" text-anchor="middle">ACTION</text>
-        </g>
-        <line x1="40" y1="482" x2="580" y2="482" stroke="#d8d0bf" stroke-width="0.5"></line>
-      </svg>
+<section
+  id="hero"
+  class="group/hero relative flex min-h-[calc(100svh-76px)] items-center overflow-hidden max-nav:min-h-[70svh] max-xs:min-h-[62svh]"
+>
+  <canvas id="parallax-field" class="absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
+  <div class="hero-wash absolute inset-0" aria-hidden="true"></div>
+
+  <Container class="relative z-10 w-full py-20 max-nav:py-14">
+    <div class="mx-auto max-w-[780px] text-center">
+      <h1 class="text-balance font-display text-[clamp(44px,5.7vw,76px)] font-semibold leading-[0.98] tracking-[-0.045em] max-xs:text-[clamp(26px,calc(11.3vw-10px),44px)]">
+        A <span class="text-gold">deeper look</span> at <span class="whitespace-nowrap">AI agent evaluations</span>
+      </h1>
+      <p class="mx-auto mt-7 max-w-[640px] text-balance text-[clamp(17px,1.9vw,23px)] leading-[1.5] text-ink">
+        Parallax is a non-profit research lab building the science of belief elicitation for white-box auditing of frontier AI agents.
+      </p>
     </div>
   </Container>
 </section>
 
 <script>
-  // Builds the hero attribution graph. When idle it auto-propagates the
-  // gold circuit one layer every 1.5 seconds, stopping at the last layer;
-  // hovering pauses it and hands manual control to the per-layer hit areas.
-  (function buildHeroGraph() {
-    const svg = document.getElementById('hero-graph');
-    if (!svg) return;
-    const ns = 'http://www.w3.org/2000/svg';
+  type FieldPoint = {
+    x: number;
+    y: number;
+    depth: number;
+    phase: number;
+    drift: number;
+  };
 
-    // Layout: 4 layers, all share vertical band 60->460.
-    // Layers 1-3 have 8 nodes, layer 4 has 1 (centered).
-    const layers = [
-      { x: 80, n: 8, hot: [1, 2, 4, 5, 7] }, // observation - 5 hot
-      { x: 240, n: 8, hot: [1, 3, 5] }, // belief - units 2, 4, 6
-      { x: 400, n: 8, hot: [2, 6] }, // goal - units 3, 7
-      { x: 560, n: 1, hot: [0] }, // action - 1 hot
+  (function createParallaxField() {
+    const canvas = document.getElementById('parallax-field') as HTMLCanvasElement | null;
+    const hero = document.getElementById('hero');
+    const context = canvas?.getContext('2d');
+    if (!canvas || !hero || !context) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, manualActive: false };
+    const automaticFocuses = [
+      { x: 0.2, y: 0.3 },
+      { x: 0.78, y: 0.68 },
+      { x: 0.26, y: 0.76 },
+      { x: 0.8, y: 0.25 },
     ];
+    const automaticDelay = 1_800;
+    const automaticDuration = 3_200;
+    const automaticInterval = 10_500;
+    let width = 0;
+    let height = 0;
+    let points: FieldPoint[] = [];
+    let animationFrame = 0;
+    let startTime = performance.now();
+    let heroVisible = true;
+    let pausedAt: number | null = null;
+    let lastManualInteraction = -Infinity;
+    let revealMode = '';
+    let colors = { point: '#111411', line: '#111411', gold: '#c89a2a' };
 
-    const yTop = 60,
-      yBot = 460;
-    function yFor(i: number, n: number) {
-      if (n === 1) return (yTop + yBot) / 2;
-      return yTop + ((yBot - yTop) * i) / (n - 1);
-    }
-
-    const positions = layers.map((L) => {
-      const arr = [];
-      for (let i = 0; i < L.n; i++)
-        arr.push({ x: L.x, y: yFor(i, L.n), hot: L.hot.includes(i) });
-      return arr;
-    });
-
-    const baseG = document.getElementById('g-edges-base')!;
-    const hotG = document.getElementById('g-edges-hot')!;
-    const nodeG = document.getElementById('g-nodes')!;
-
-    // Edges — every edge gets a gray base so the full topology is
-    // always visible. Hot edges additionally get a gold overlay that
-    // stays hidden until the figure is hovered.
-    for (let l = 0; l < layers.length - 1; l++) {
-      const A = positions[l],
-        B = positions[l + 1];
-      for (let i = 0; i < A.length; i++) {
-        for (let j = 0; j < B.length; j++) {
-          const a = A[i],
-            b = B[j];
-
-          const base = document.createElementNS(ns, 'line');
-          base.setAttribute('x1', String(a.x));
-          base.setAttribute('y1', String(a.y));
-          base.setAttribute('x2', String(b.x));
-          base.setAttribute('y2', String(b.y));
-          base.setAttribute('stroke', '#5b574e');
-          base.setAttribute('stroke-width', '0.55');
-          base.setAttribute('opacity', '0.45');
-          base.setAttribute('fill', 'none');
-          baseG.appendChild(base);
-
-          if (a.hot && b.hot) {
-            const hot = document.createElementNS(ns, 'line');
-            hot.setAttribute('x1', String(a.x));
-            hot.setAttribute('y1', String(a.y));
-            hot.setAttribute('x2', String(b.x));
-            hot.setAttribute('y2', String(b.y));
-            hot.setAttribute('stroke', '#c89a2a');
-            hot.setAttribute('stroke-width', '1.4');
-            hot.setAttribute('fill', 'none');
-            // `l-{N}` is the destination layer — the edge reveals when
-            // that layer (or any later layer) is hovered.
-            hot.setAttribute('class', 'pulse l-' + (l + 1));
-            // Normalize each line's logical length so the dash animation
-            // covers the whole edge regardless of its geometric distance.
-            hot.setAttribute('pathLength', '1');
-            // Stagger the reveal left-to-right on hover.
-            hot.style.setProperty('--delay', l * 0.3 + (i % 5) * 0.04 + 's');
-            hotG.appendChild(hot);
-          }
-        }
-      }
-    }
-
-    // Nodes — neutral by default; CSS turns hot nodes gold on hover.
-    positions.forEach((layer, li) => {
-      layer.forEach((p) => {
-        if (p.hot) {
-          // Glow halo - scales with node size; hidden until hover.
-          const halo = document.createElementNS(ns, 'circle');
-          halo.setAttribute('cx', String(p.x));
-          halo.setAttribute('cy', String(p.y));
-          halo.setAttribute('r', li === layers.length - 1 ? '30' : '22');
-          halo.setAttribute('fill', 'url(#goldGlow)');
-          halo.setAttribute('class', 'halo l-' + li);
-          nodeG.appendChild(halo);
-        }
-        const c = document.createElementNS(ns, 'circle');
-        c.setAttribute('cx', String(p.x));
-        c.setAttribute('cy', String(p.y));
-        const isOutput = li === layers.length - 1;
-        c.setAttribute('r', isOutput ? '9' : p.hot ? '6.5' : '5.5');
-        if (p.hot) c.setAttribute('class', 'node-hot l-' + li);
-        else c.setAttribute('fill', '#141414');
-        nodeG.appendChild(c);
-      });
-    });
-
-    // Cumulative reveal: turn on later layers 1..n, leaving observation
-    // (layer 0) always lit.
-    const revealUpTo = (n: number) => {
-      for (let k = 1; k <= 3; k++) svg.classList.toggle('show-l' + k, k <= n);
+    // A deterministic generator keeps the composition stable across theme changes.
+    let seed = 912_731;
+    const random = () => {
+      seed = (seed * 16_807) % 2_147_483_647;
+      return (seed - 1) / 2_147_483_646;
     };
 
-    // Idle autoplay — propagate the circuit one layer every 1.5 seconds,
-    // stopping fully revealed at the last layer (no loop). Skipped when the
-    // visitor prefers reduced motion.
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let autoLayer = 0;
-    let autoTimer: number | undefined;
-    function startAuto() {
-      if (autoTimer || reduce.matches || autoLayer >= 3) return;
-      autoTimer = window.setInterval(() => {
-        autoLayer += 1;
-        revealUpTo(autoLayer);
-        if (autoLayer >= 3) stopAuto();
-      }, 1500);
-    }
-    function stopAuto() {
-      window.clearInterval(autoTimer);
-      autoTimer = undefined;
+    const cssColor = (name: string) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const withAlpha = (color: string, alpha: number) => {
+      const hex = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
+      if (!hex) return color;
+      return `rgba(${parseInt(hex[1], 16)}, ${parseInt(hex[2], 16)}, ${parseInt(hex[3], 16)}, ${alpha})`;
+    };
+    const refreshColors = () => {
+      colors = {
+        point: cssColor('--color-field-point'),
+        line: cssColor('--color-field-line'),
+        gold: cssColor('--color-gold'),
+      };
+    };
+
+    const distanceToSegment = (
+      x: number,
+      y: number,
+      a: { x: number; y: number },
+      b: { x: number; y: number },
+    ) => {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const lengthSquared = dx * dx + dy * dy;
+      if (lengthSquared === 0) return Math.hypot(x - a.x, y - a.y);
+      const progress = Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / lengthSquared));
+      return Math.hypot(x - (a.x + progress * dx), y - (a.y + progress * dy));
+    };
+
+    function rebuild() {
+      const bounds = hero.getBoundingClientRect();
+      refreshColors();
+      width = Math.max(1, bounds.width);
+      height = Math.max(1, bounds.height);
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      seed = 912_731;
+      // Keep roughly the same visual density as the canvas changes shape:
+      // compact heroes need fewer points, while full-screen fields can carry more.
+      const count = Math.max(26, Math.min(220, Math.round((width * height) / 7_000)));
+      points = Array.from({ length: count }, () => ({
+        x: random() * width,
+        y: random() * height,
+        depth: 0.35 + random() * 0.95,
+        phase: random() * Math.PI * 2,
+        drift: 0.14 + random() * 0.24,
+      }));
+      pointer.x = pointer.targetX = width * 0.72;
+      pointer.y = pointer.targetY = height * 0.46;
+      restart();
     }
 
-    // Hovering the figure pauses the autoplay and hands over to the
-    // per-layer hit areas; leaving it resumes the propagation from the
-    // last hovered layer through to the end.
-    svg.addEventListener('mouseenter', stopAuto);
-    svg.addEventListener('mouseleave', () => {
-      revealUpTo(autoLayer);
-      startAuto();
-    });
+    function position(point: FieldPoint, time: number) {
+      const idleX = reducedMotion.matches ? 0 : Math.sin(time * point.drift + point.phase) * 11;
+      const idleY = reducedMotion.matches ? 0 : Math.cos(time * point.drift * 0.82 + point.phase) * 8;
+      return { x: point.x + idleX, y: point.y + idleY };
+    }
 
-    // Per-layer hover hit areas. Hovering layer N reveals N and every
-    // earlier layer, and parks the autoplay there so it carries on from
-    // N when the pointer leaves; moving between areas restates the set.
-    const bounds: [number, number][] = [
-      [0, 160],
-      [160, 320],
-      [320, 480],
-      [480, 600],
-    ];
-    const hits = document.createElementNS(ns, 'g');
-    hits.setAttribute('id', 'g-hits');
-    bounds.forEach(([x0, x1], idx) => {
-      const r = document.createElementNS(ns, 'rect');
-      r.setAttribute('x', String(x0));
-      r.setAttribute('y', '0');
-      r.setAttribute('width', String(x1 - x0));
-      r.setAttribute('height', '520');
-      r.setAttribute('fill', 'transparent');
-      r.addEventListener('mouseenter', () => {
-        autoLayer = idx;
-        revealUpTo(idx);
+    function setRevealMode(mode: 'manual' | 'automatic' | 'idle') {
+      if (mode === revealMode) return;
+      revealMode = mode;
+      canvas.dataset.reveal = mode;
+    }
+
+    function draw(now: number) {
+      animationFrame = 0;
+      const time = (now - startTime) / 1000;
+      const automaticElapsed = now - startTime - automaticDelay;
+      const automaticCycle = automaticElapsed >= 0
+        ? Math.floor(automaticElapsed / automaticInterval)
+        : -1;
+      const automaticPhase = automaticElapsed >= 0
+        ? automaticElapsed % automaticInterval
+        : automaticDuration;
+      const automaticActive = !reducedMotion.matches
+        && !pointer.manualActive
+        && now - lastManualInteraction > 1_500
+        && automaticCycle >= 0
+        && automaticPhase < automaticDuration;
+
+      if (automaticActive) {
+        const focus = automaticFocuses[automaticCycle % automaticFocuses.length];
+        pointer.targetX = width * focus.x;
+        pointer.targetY = height * focus.y;
+        setRevealMode('automatic');
+      } else if (pointer.manualActive) {
+        setRevealMode('manual');
+      } else {
+        setRevealMode('idle');
+      }
+
+      const lensActive = pointer.manualActive || automaticActive;
+      pointer.x += (pointer.targetX - pointer.x) * 0.075;
+      pointer.y += (pointer.targetY - pointer.y) * 0.075;
+      context.clearRect(0, 0, width, height);
+
+      const pointColor = colors.point;
+      const lineColor = colors.line;
+      const goldColor = colors.gold;
+      const naturalPositions = points.map((point) => position(point, time));
+      const connectionDistance = Math.min(158, 96 + width * 0.043);
+      const lensRadius = Math.min(235, 138 + width * 0.064);
+      const positions = naturalPositions.map((current) => {
+        if (!lensActive) return current;
+        const dx = current.x - pointer.x;
+        const dy = current.y - pointer.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance >= lensRadius) return current;
+        const lens = 1 - distance / lensRadius;
+        const magnification = 1 + lens * lens * 0.22;
+        return {
+          x: pointer.x + dx * magnification,
+          y: pointer.y + dy * magnification,
+        };
       });
-      hits.appendChild(r);
-    });
-    svg.appendChild(hits);
+      const activeEdges: Array<{
+        a: { x: number; y: number };
+        b: { x: number; y: number };
+        strength: number;
+        phase: number;
+        speed: number;
+      }> = [];
 
-    // Observation layer is always active so the page never reads as
-    // a fully grey graph on load; kick off the idle propagation loop.
-    svg.classList.add('show-l0');
-    startAuto();
+      if (lensActive) {
+        const glow = context.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, lensRadius);
+        glow.addColorStop(0, withAlpha(goldColor, 0.15));
+        glow.addColorStop(0.52, withAlpha(goldColor, 0.055));
+        glow.addColorStop(1, withAlpha(goldColor, 0));
+        context.fillStyle = glow;
+        context.beginPath();
+        context.arc(pointer.x, pointer.y, lensRadius, 0, Math.PI * 2);
+        context.fill();
+      }
+
+      // The network stays monochrome until the pointer exposes a local subgraph.
+      // Gold signals then make the communication inside that area legible.
+      context.lineWidth = 0.85;
+      for (let i = 0; i < points.length; i += 1) {
+        const a = positions[i];
+        for (let j = i + 1; j < points.length; j += 1) {
+          const b = positions[j];
+          const distance = Math.hypot(a.x - b.x, a.y - b.y);
+          if (distance > connectionDistance) continue;
+
+          const distanceFactor = 1 - distance / connectionDistance;
+          const opacity = 0.14 + distanceFactor * 0.22;
+          context.strokeStyle = lineColor;
+          context.globalAlpha = opacity;
+          context.lineWidth = 0.8;
+          context.beginPath();
+          context.moveTo(a.x, a.y);
+          context.lineTo(b.x, b.y);
+          context.stroke();
+
+          const lensDistance = distanceToSegment(pointer.x, pointer.y, a, b);
+          const lens = lensActive ? Math.max(0, 1 - lensDistance / lensRadius) : 0;
+          if (lens > 0) {
+            context.strokeStyle = goldColor;
+            context.globalAlpha = Math.min(1, lens * (0.62 + distanceFactor * 0.5));
+            context.lineWidth = 1.05 + lens * 1.2;
+            context.beginPath();
+            context.moveTo(a.x, a.y);
+            context.lineTo(b.x, b.y);
+            context.stroke();
+
+            if ((i * 31 + j * 17) % 4 === 0) {
+              activeEdges.push({
+                a,
+                b,
+                strength: lens,
+                phase: ((i * 37 + j * 19) % 101) / 101,
+                speed: 0.18 + ((i * 11 + j * 7) % 9) * 0.008,
+              });
+            }
+          }
+          context.globalAlpha = 1;
+        }
+      }
+
+      points.forEach((point, index) => {
+        const current = positions[index];
+        const lensDistance = Math.hypot(current.x - pointer.x, current.y - pointer.y);
+        const lens = lensActive ? Math.max(0, 1 - lensDistance / lensRadius) : 0;
+
+        context.fillStyle = pointColor;
+        context.globalAlpha = Math.min(0.96, 0.68 + point.depth * 0.22);
+        context.beginPath();
+        context.arc(current.x, current.y, 1.5 + point.depth * 1.05, 0, Math.PI * 2);
+        context.fill();
+
+        if (lens > 0) {
+          context.fillStyle = goldColor;
+          context.globalAlpha = Math.min(1, lens * 1.28);
+          context.beginPath();
+          context.arc(current.x, current.y, 2 + point.depth * 1.05 + lens * 1.65, 0, Math.PI * 2);
+          context.fill();
+        }
+        context.globalAlpha = 1;
+      });
+
+      activeEdges.forEach((edge) => {
+        // Every signal follows its own steady, cursor-independent timeline.
+        // Hover changes only its visibility, never its position or speed.
+        const travel = (time * edge.speed + edge.phase) % 1;
+        const x = edge.a.x + (edge.b.x - edge.a.x) * travel;
+        const y = edge.a.y + (edge.b.y - edge.a.y) * travel;
+
+        context.fillStyle = goldColor;
+        context.globalAlpha = edge.strength * 0.16;
+        context.beginPath();
+        context.arc(x, y, 5.5, 0, Math.PI * 2);
+        context.fill();
+        context.globalAlpha = Math.min(1, edge.strength * 1.1);
+        context.beginPath();
+        context.arc(x, y, 1.8, 0, Math.PI * 2);
+        context.fill();
+        context.globalAlpha = 1;
+      });
+
+      if (shouldAnimate()) animationFrame = window.requestAnimationFrame(draw);
+    }
+
+    function shouldAnimate() {
+      return !reducedMotion.matches && heroVisible && document.visibilityState === 'visible';
+    }
+
+    function cancelAnimation() {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+    }
+
+    function pauseAnimation() {
+      cancelAnimation();
+      pausedAt ??= performance.now();
+    }
+
+    function resumeAnimation() {
+      if (!shouldAnimate() || animationFrame !== 0) return;
+      const now = performance.now();
+      if (pausedAt !== null) {
+        const pauseDuration = now - pausedAt;
+        startTime += pauseDuration;
+        if (Number.isFinite(lastManualInteraction)) lastManualInteraction += pauseDuration;
+        pausedAt = null;
+      }
+      animationFrame = window.requestAnimationFrame(draw);
+    }
+
+    function restart() {
+      cancelAnimation();
+      pausedAt = null;
+      startTime = performance.now();
+      draw(startTime);
+    }
+
+    hero.addEventListener('pointermove', (event) => {
+      const bounds = hero.getBoundingClientRect();
+      pointer.targetX = event.clientX - bounds.left;
+      pointer.targetY = event.clientY - bounds.top;
+      pointer.manualActive = true;
+      lastManualInteraction = performance.now();
+      if (reducedMotion.matches) {
+        pointer.x = pointer.targetX;
+        pointer.y = pointer.targetY;
+        draw(performance.now());
+      }
+    });
+    hero.addEventListener('pointerleave', () => {
+      pointer.manualActive = false;
+      lastManualInteraction = performance.now();
+      if (reducedMotion.matches) {
+        pointer.x = pointer.targetX;
+        pointer.y = pointer.targetY;
+        draw(performance.now());
+      }
+    });
+
+    new ResizeObserver(rebuild).observe(hero);
+    new IntersectionObserver(([entry]) => {
+      heroVisible = entry?.isIntersecting ?? false;
+      if (heroVisible) resumeAnimation();
+      else pauseAnimation();
+    }, { threshold: 0.01 }).observe(hero);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') resumeAnimation();
+      else pauseAnimation();
+    });
+    new MutationObserver(() => {
+      refreshColors();
+      if (reducedMotion.matches) draw(performance.now());
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+    reducedMotion.addEventListener('change', restart);
+    rebuild();
   })();
 </script>

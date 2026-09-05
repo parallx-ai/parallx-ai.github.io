@@ -1,0 +1,67 @@
+---
+interface Props {
+  role: string;
+}
+
+const { role } = Astro.props;
+---
+
+<div class="apply-action" data-apply-action>
+  <button
+    class="apply-button"
+    type="button"
+    aria-label={`Apply to this position: ${role}`}
+    aria-expanded="false"
+  >
+    Apply to this position
+  </button>
+  <p class="apply-warning" aria-live="polite" hidden>
+    The application form will be available soon, check again tomorrow!
+  </p>
+</div>
+
+<style>
+  .apply-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .apply-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--color-gold-button);
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 0.875rem 1.625rem;
+    opacity: 1;
+  }
+
+  .apply-warning {
+    color: var(--color-gold-deep);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-apply-action]').forEach((action) => {
+    const button = action.querySelector<HTMLButtonElement>('.apply-button');
+    const warning = action.querySelector<HTMLElement>('.apply-warning');
+
+    button?.addEventListener('click', () => {
+      if (!warning) return;
+      warning.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
+    });
+  });
+</script>

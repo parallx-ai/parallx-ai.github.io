@@ -1,0 +1,40 @@
+---
+import Container from './Container.astro';
+
+interface NewsItem {
+  title: string;
+  date: string;
+  summary: string;
+  href: string;
+}
+
+interface Props {
+  items: NewsItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section id="news" class="scroll-mt-[76px] bg-paper py-8 max-nav:py-6">
+  <Container>
+    <div class="grid grid-cols-[1fr_2fr] items-start gap-[60px] max-nav:grid-cols-1 max-nav:gap-8">
+      <h2 class="font-display text-[clamp(20px,3vw,36px)] font-semibold leading-[1.05] tracking-[-0.035em]">News</h2>
+
+      <div class="border-t border-rule">
+        {items.map((item) => (
+          <a
+            href={item.href}
+            class="group/news grid grid-cols-[112px_1fr_auto] gap-6 border-b border-rule-soft py-7 text-ink transition-colors hover:text-gold-deep max-xs:grid-cols-[1fr_auto] max-xs:gap-x-4 max-xs:gap-y-2"
+          >
+            <time class="pt-1 text-[13px] text-ink-3 max-xs:col-span-2">{item.date}</time>
+            <div>
+              <h3 class="font-display text-[clamp(20px,2vw,24px)] font-semibold leading-[1.35] tracking-[-0.015em]">{item.title}</h3>
+              <p class="mt-2 max-w-[58ch] text-[clamp(14px,1.4vw,17px)] leading-[1.45] text-ink-1">{item.summary}</p>
+            </div>
+            <span class="pt-1 text-[24px] leading-none transition-transform group-hover/news:translate-x-1" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </Container>
+</section>

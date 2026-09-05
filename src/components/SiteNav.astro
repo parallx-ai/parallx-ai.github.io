@@ -4,26 +4,26 @@ import wordmarkLight from '../assets/logos/wordmark-light.webp';
 import wordmarkDark from '../assets/logos/wordmark-dark.webp';
 import Container from './Container.astro';
 
+const pathname = Astro.url.pathname;
 const links = [
-  { label: 'Home', href: '/', active: true },
-  { label: 'About', href: '/about.html', active: false },
-  { label: 'Research', href: '/#research', active: false },
+  { label: 'About', href: '/about.html', active: pathname === '/about.html' },
 ];
+const careersActive = pathname.startsWith('/careers');
 ---
 <header
   id="site-nav"
   class="group/nav sticky top-0 z-50 border-b border-rule-soft bg-cream/[0.88] backdrop-blur-[12px] backdrop-saturate-[1.4]"
 >
-  <Container class="flex h-[76px] items-center justify-between">
-    <a href="/" class="inline-flex items-center gap-[2px]" aria-label="Parallax Labs">
+  <Container class="flex h-[76px] items-center justify-between max-xs:px-4">
+    <a href="/" class="inline-flex items-center gap-[2px]" aria-label="Parallax">
       <Image
         src={wordmarkLight}
-        alt="Parallax Labs"
+        alt="Parallax"
         width={120}
         densities={[1, 2, 3]}
         loading="eager"
         fetchpriority="high"
-        class="block dark:hidden"
+        class="block h-auto w-[120px] max-xs:w-[100px] dark:hidden"
       />
       <Image
         src={wordmarkDark}
@@ -33,69 +33,76 @@ const links = [
         densities={[1, 2, 3]}
         loading="eager"
         fetchpriority="high"
-        class="hidden dark:block"
+        class="hidden h-auto w-[120px] max-xs:w-[100px] dark:block"
       />
     </a>
 
-    <div class="flex items-center gap-5">
+    <div class="flex items-center gap-5 max-xs:gap-2">
       <nav
         id="primary-nav"
         aria-label="Primary"
-        class="flex items-center gap-9 text-sm max-nav:absolute max-nav:inset-x-0 max-nav:top-full max-nav:origin-top max-nav:scale-y-0 max-nav:flex-col max-nav:items-stretch max-nav:gap-0 max-nav:border-b max-nav:border-rule-soft max-nav:bg-cream/[0.97] max-nav:px-8 max-nav:pt-1 max-nav:pb-3.5 max-nav:opacity-0 max-nav:backdrop-blur-[12px] max-nav:transition max-nav:duration-200 max-nav:pointer-events-none group-data-[open]/nav:max-nav:scale-y-100 group-data-[open]/nav:max-nav:pointer-events-auto group-data-[open]/nav:max-nav:opacity-100"
+        class="flex items-center gap-7 text-base max-xs:pointer-events-none max-xs:invisible max-xs:absolute max-xs:inset-x-0 max-xs:top-full max-xs:origin-top max-xs:scale-y-0 max-xs:flex-col max-xs:items-center max-xs:gap-3 max-xs:border-b max-xs:border-rule-soft max-xs:bg-cream/[0.97] max-xs:px-6 max-xs:py-5 max-xs:text-[15px] max-xs:opacity-0 max-xs:backdrop-blur-[12px] max-xs:transition max-xs:duration-200 group-data-[open]/nav:max-xs:pointer-events-auto group-data-[open]/nav:max-xs:visible group-data-[open]/nav:max-xs:scale-y-100 group-data-[open]/nav:max-xs:opacity-100"
       >
         {
           links.map((link) => (
             <a
               href={link.href}
+              aria-current={link.active ? 'page' : undefined}
               class:list={[
                 'relative py-1.5 font-semibold text-ink-1',
                 "after:absolute after:inset-x-0 after:bottom-0 after:hidden after:h-px after:bg-gold after:content-['']",
                 'nav:hover:after:block',
                 link.active && 'nav:after:block',
-                'max-nav:border-t max-nav:border-rule-soft max-nav:py-3.5 max-nav:text-[15px] max-nav:first:border-t-0',
               ]}
             >
               {link.label}
             </a>
           ))
         }
-      </nav>
+        <a
+          href="/careers.html"
+          aria-current={careersActive ? 'page' : undefined}
+          class="inline-flex items-center justify-center rounded-full bg-gold-button px-4 py-2 font-semibold leading-none text-white transition-colors hover:bg-gold-button hover:text-white active:bg-gold-button active:text-white max-xs:px-2.5 max-xs:py-2"
+        >
+          Join us
+        </a>
 
-      <button
-        id="themeToggle"
-        type="button"
-        aria-label="Toggle theme"
-        title="Toggle theme"
-        class="flex h-[36px] w-[36px] cursor-pointer items-center justify-center text-ink-2 transition-colors hover:text-gold-deep"
-      >
-        <!-- Moon: visible in light mode -->
-        <svg
-          class="block h-[18px] w-[18px] dark:hidden"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
+        <button
+          id="themeToggle"
+          type="button"
+          aria-label="Toggle theme"
+          title="Toggle theme"
+          class="flex h-[42px] w-[42px] cursor-pointer items-center justify-center text-ink-2 transition-colors hover:text-gold-deep max-xs:h-10 max-xs:w-10"
         >
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-        <!-- Sun: visible in dark mode -->
-        <svg
-          class="hidden h-[18px] w-[18px] dark:block"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="4"></circle>
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
-        </svg>
-      </button>
+          <!-- Moon: visible in light mode -->
+          <svg
+            class="block h-[22px] w-[22px] dark:hidden"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <!-- Sun: visible in dark mode -->
+          <svg
+            class="hidden h-[22px] w-[22px] dark:block"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
+      </nav>
 
       <button
         id="navToggle"
@@ -103,7 +110,7 @@ const links = [
         aria-label="Toggle menu"
         aria-expanded="false"
         aria-controls="primary-nav"
-        class="hidden h-[42px] w-[42px] cursor-pointer flex-col justify-center gap-[5px] border border-rule max-nav:flex"
+        class="hidden h-[42px] w-[42px] cursor-pointer flex-col justify-center gap-[5px] border border-rule max-xs:flex"
       >
         <span
           class="mx-auto block h-[1.5px] w-5 bg-ink transition-transform group-data-[open]/nav:translate-y-[6.5px] group-data-[open]/nav:rotate-45"
@@ -115,27 +122,33 @@ const links = [
           class="mx-auto block h-[1.5px] w-5 bg-ink transition-transform group-data-[open]/nav:-translate-y-[6.5px] group-data-[open]/nav:-rotate-45"
         ></span>
       </button>
+
     </div>
   </Container>
 </header>
 
 <script>
   const header = document.getElementById('site-nav');
-  const btn = document.getElementById('navToggle');
+  const navBtn = document.getElementById('navToggle');
   const nav = document.getElementById('primary-nav');
 
-  if (header && btn && nav) {
-    btn.addEventListener('click', () => {
-      const open = header.toggleAttribute('data-open');
-      btn.setAttribute('aria-expanded', String(open));
-    });
-    nav.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => {
-        header.removeAttribute('data-open');
-        btn.setAttribute('aria-expanded', 'false');
-      });
-    });
-  }
+  const closeNav = () => {
+    header?.removeAttribute('data-open');
+    navBtn?.setAttribute('aria-expanded', 'false');
+  };
+
+  navBtn?.addEventListener('click', () => {
+    const open = header?.toggleAttribute('data-open') ?? false;
+    navBtn.setAttribute('aria-expanded', String(open));
+  });
+
+  nav?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeNav);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeNav();
+  });
 
   // Theme toggle — initial state is set by the inline script in <head>.
   const themeBtn = document.getElementById('themeToggle');
@@ -144,5 +157,6 @@ const links = [
     try {
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     } catch (_) {}
+    closeNav();
   });
 </script>

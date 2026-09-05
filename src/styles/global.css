@@ -1,11 +1,8 @@
 @import "tailwindcss";
 
-/* Fonts are loaded through Astro's experimental.fonts API (configured in
-   astro.config.mjs and mounted via <Font preload /> in Base.astro): it
-   fetches the requested fontsource families, subsets to latin, generates
-   metric-matched fallback @font-face to minimise font-swap CLS, and emits
-   preload links automatically. IBM Plex Mono is intentionally absent —
-   small uppercase labels render fine on the system mono stack. */
+/* Inter is loaded through Astro's font pipeline. Display type deliberately
+   uses the same bookish system-serif stack as gsarti.com, keeping the site
+   editorial without introducing a second webfont download. */
 
 /* Class-based dark mode: `dark:` variants fire when `.dark` is on
    <html> (or any ancestor). Toggled by the script in SiteNav. */
@@ -18,27 +15,32 @@
 @theme {
   /* Surfaces */
   --color-cream: #f4f1ea;
-  --color-paper: #ebe6dc;
-  --color-paper-2: #e3ddcd;
+  --color-paper: #eef1ed;
+  --color-paper-2: #e5e9e4;
 
   /* Ink */
-  --color-ink: #141414;
-  --color-ink-1: #2a2823;
-  --color-ink-2: #5b574e;
-  --color-ink-3: #8a8576;
+  --color-ink: #111411;
+  --color-ink-1: #303631;
+  --color-ink-2: #606a63;
+  --color-ink-3: #88918b;
 
   /* Rules */
-  --color-rule: #d8d0bf;
-  --color-rule-soft: #e6dfce;
+  --color-rule: #cfd6d0;
+  --color-rule-soft: #e1e6e1;
 
   /* Accent */
   --color-gold: #c89a2a;
   --color-gold-deep: #a37f1f;
   --color-gold-soft: #e8c97a;
+  --color-gold-button: #ba8e25;
+
+  /* The hero field is monochrome until a local white-box view activates it. */
+  --color-field-point: #111411;
+  --color-field-line: #111411;
 
   /* Type */
-  --font-display: "Source Serif 4", "Source Serif Pro", Georgia, serif;
-  --font-body: "IBM Plex Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
   /* Breakpoints — the design is desktop-first, so these are used
@@ -53,29 +55,24 @@
 
 /* =============================================================
    Dark mode — re-bind the surface/ink/rule tokens so every
-   Tailwind utility built from them flips automatically. Gold
-   accents work in both modes and stay unchanged.
+   Tailwind utility built from them flips automatically.
    ============================================================= */
 html.dark {
-  --color-cream: #161512;
-  --color-paper: #1f1d1a;
-  --color-paper-2: #2a2723;
-  --color-ink: #f4f1ea;
-  --color-ink-1: #e8e1d0;
-  --color-ink-2: #a8a195;
-  --color-ink-3: #7a7568;
-  --color-rule: #3a3530;
-  --color-rule-soft: #2a2723;
+  --color-cream: #111411;
+  --color-paper: #171c19;
+  --color-paper-2: #202722;
+  --color-ink: #eff1e9;
+  --color-ink-1: #cbd0c9;
+  --color-ink-2: #a9b0aa;
+  --color-ink-3: #757e77;
+  --color-rule: #343c36;
+  --color-rule-soft: #272e29;
+  --color-gold: #d7aa3d;
+  --color-gold-deep: #e8c97a;
+  --color-gold-soft: #f1dda5;
+  --color-field-point: #eff1e9;
+  --color-field-line: #eff1e9;
 }
-
-/* The hero graph paints its base edges and dormant nodes with
-   inline SVG attributes, which Tailwind tokens can't reach.
-   Override them via CSS so they invert with the theme. */
-html.dark #hero-graph #g-edges-base line { stroke: var(--color-ink-2); }
-html.dark #hero-graph #g-nodes circle:not(.node-hot):not(.halo) {
-  fill: var(--color-ink);
-}
-html.dark #hero-graph > line { stroke: var(--color-rule); }
 
 /* =============================================================
    Base
@@ -84,62 +81,42 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
   body {
     background: var(--color-cream);
     color: var(--color-ink);
     font-family: var(--font-body);
     font-size: 16px;
-    line-height: 1.55;
-    font-feature-settings: "ss01", "cv11";
+    line-height: 1.6;
+    font-feature-settings: "ss01", "cv11", "kern";
+    letter-spacing: -0.006em;
     text-rendering: optimizeLegibility;
   }
   a:hover { color: var(--color-gold-deep); }
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 4px;
+  }
 }
 
-/* =============================================================
-   Hero neural-graph figure
-   Height and label size are tunable at runtime via the Tweaks
-   panel, which sets these custom properties on :root.
-   ============================================================= */
-#hero-graph {
-  width: 100%;
-  height: var(--hero-fig-height, 446.433px);
+.hero-wash {
+  background:
+    radial-gradient(ellipse 58% 58% at 50% 50%, color-mix(in srgb, var(--color-cream) 89%, transparent) 0%, color-mix(in srgb, var(--color-cream) 69%, transparent) 42%, color-mix(in srgb, var(--color-cream) 20%, transparent) 68%, transparent 100%);
 }
-#hero-graph #g-labels {
-  fill: var(--color-gold);
-  font-weight: 700;
-}
-#hero-graph #g-labels text {
-  font-size: var(--hero-label-size, 11px);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-/* On small screens the figure stacks and shrinks, so trim the side
-   gutter to give it more width and enlarge the labels. Labels are sized
-   in viewBox units (they scale down with the figure), hence the bump. */
-@media (max-width: 1000px) {
-  /* Drop the fixed desktop height and let the figure follow the graph's
-     own viewBox aspect ratio. Otherwise the graph is letterboxed inside
-     the taller box, leaving large empty gaps above and below. */
-  #hero-figure {
-    aspect-ratio: auto;
-  }
-  #hero-graph {
-    height: auto;
-  }
-  #hero-graph #g-labels text {
-    font-size: var(--hero-label-size-sm, 17px);
+
+@media (max-width: 700px) {
+  .hero-wash {
+    background: radial-gradient(ellipse 90% 56% at 50% 48%, color-mix(in srgb, var(--color-cream) 90%, transparent) 0%, color-mix(in srgb, var(--color-cream) 70%, transparent) 48%, color-mix(in srgb, var(--color-cream) 18%, transparent) 76%, transparent 100%);
   }
 }
-@media (max-width: 600px) {
-  /* Negative margins reclaim half of the Container's 2rem gutter; the
-     hero section is overflow-hidden so this can't cause a scrollbar. */
-  #hero-figure {
-    width: auto;
-    max-width: none;
-    margin-left: -1rem;
-    margin-right: -1rem;
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
@@ -165,8 +142,8 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
 }
 .prose h2 {
   margin-top: 1.5em;
-  font-size: clamp(28px, 2.8vw, 36px);
-  line-height: 1.15;
+  font-size: 22px;
+  line-height: 1.3;
 }
 .prose h3 {
   margin-top: 2.2em;
@@ -178,9 +155,9 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   font-size: 17px;
   line-height: 1.35;
   color: var(--color-ink-1);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
+  font-family: var(--font-body);
+  font-weight: 600;
 }
 
 .prose p { text-wrap: pretty; }
@@ -233,6 +210,22 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
 .prose .prose-full a:hover {
   color: var(--color-gold-deep);
 }
+.prose .prose-full h3 {
+  margin-top: 0;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.prose .prose-full h4 {
+  margin-top: 0;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
 
 .prose ul,
 .prose ol { padding-left: 1.25em; }
@@ -245,7 +238,7 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   color: var(--color-ink-1);
   font-style: italic;
 }
-/* Gold rule lives in the left gutter (not as padding/border on the box) so
+/* Accent rule lives in the left gutter (not as padding/border on the box) so
    the quote text stays flush with the paragraph text — both align to the
    left edge of the shared --prose-measure column. */
 .prose blockquote::before {
@@ -269,52 +262,3 @@ html.dark #hero-graph > line { stroke: var(--color-rule); }
   font-size: 0.9em;
   padding: 0.1em 0.35em;
 }
-
-/* Hero attribution graph — static by default, reveals the gold
-   circuit on hover. The hero script tags each hot edge with .pulse
-   and each halo / hot node with .halo / .node-hot, and writes a
-   stagger offset to `--delay` so the edges draw left-to-right. */
-@keyframes dashDraw {
-  to { stroke-dashoffset: 0; }
-}
-.pulse {
-  /* Each line carries pathLength="1" so dash math is normalized
-     to its actual geometry instead of a hardcoded length. */
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-#hero-graph .node-hot {
-  fill: var(--color-ink);
-  transition: fill 0.35s ease;
-}
-#hero-graph .halo {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-/* Cumulative per-layer reveal. JS adds `show-l0` ... `show-l{N}` to the
-   SVG when hit-rect N is hovered; CSS turns on the matching tagged
-   elements. Each layer of state is independent so they stack naturally:
-   hovering "action" sets all four classes and reveals the whole graph. */
-#hero-graph.show-l0 .node-hot.l-0,
-#hero-graph.show-l1 .node-hot.l-1,
-#hero-graph.show-l2 .node-hot.l-2,
-#hero-graph.show-l3 .node-hot.l-3 { fill: var(--color-gold); }
-
-#hero-graph.show-l0 .halo.l-0,
-#hero-graph.show-l1 .halo.l-1,
-#hero-graph.show-l2 .halo.l-2,
-#hero-graph.show-l3 .halo.l-3 { opacity: 1; }
-
-#hero-graph.show-l1 .pulse.l-1,
-#hero-graph.show-l2 .pulse.l-2,
-#hero-graph.show-l3 .pulse.l-3 {
-  opacity: 1;
-  animation: dashDraw 1.1s ease-out var(--delay, 0s) forwards;
-}
-
-#hero-graph.show-l0 #g-labels text:nth-of-type(1),
-#hero-graph.show-l1 #g-labels text:nth-of-type(2),
-#hero-graph.show-l2 #g-labels text:nth-of-type(3),
-#hero-graph.show-l3 #g-labels text:nth-of-type(4) { opacity: 1; }

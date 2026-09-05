@@ -1,7 +1,11 @@
 ---
 import { Image } from 'astro:assets';
-import Container from './Container.astro';
 import allOrgs from '../data/orgs.json';
+
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
 
 // Logo assets are bundled and optimised by Astro at build time. Glob-import
 // every WebP source under src/assets/orgs/ and look up by slug; this lets
@@ -23,7 +27,9 @@ function getLogo(slug: string): ImageMetadata {
 // Only orgs flagged `collaborator: true` appear in the logo strip.
 // Other entries in orgs.json (used for publication/tool collaboration
 // references) are ignored here.
-const orgs = allOrgs.filter((o) => o.collaborator);
+const orgs = allOrgs
+  .filter((o) => o.collaborator)
+  .map((org) => ({ ...org, logo: getLogo(org.slug) }));
 
 // Per-logo size balance — visual mass roughly equalized across the row.
 // Each entry shrinks at narrow widths (max-nav <=1000px, max-xs <=600px).
@@ -32,8 +38,6 @@ function logoSize(path: string): string {
     return 'max-h-9 max-w-[180px] max-nav:max-h-8 max-xs:max-h-[26px] max-xs:max-w-[130px]';
   if (path.includes('ndif'))
     return 'max-h-20 max-w-[130px] max-nav:max-h-16 max-xs:max-h-[52px] max-xs:max-w-[95px]';
-  if (path.includes('ucl'))
-    return 'max-h-[60px] max-w-[200px] max-nav:max-h-[52px] max-xs:max-h-[40px] max-xs:max-w-[140px]';
   if (path.includes('technion'))
     return 'max-h-[72px] max-w-[200px] max-nav:max-h-[62px] max-xs:max-h-[48px] max-xs:max-w-[140px]';
   if (path.includes('neu'))
@@ -41,65 +45,87 @@ function logoSize(path: string): string {
   return 'max-h-[72px] max-w-[160px] max-nav:max-h-[62px] max-xs:max-h-[48px] max-xs:max-w-[120px]';
 }
 ---
-<section id="collaborators" class="py-24 max-nav:py-16">
-  <Container>
-    <div
-      class="mb-14 grid grid-cols-[1fr_2fr] items-end gap-[60px] max-nav:mb-9 max-nav:grid-cols-1 max-nav:gap-4"
-    >
-      <h2
-        class="text-balance font-display text-[28px] font-normal leading-[1.45] tracking-[-0.02em]"
-      >
-        Built with frontier labs and institutions
-      </h2>
-      <div class="max-w-[58ch]">
-        <p class="text-[18px]">
-          Our research and open infrastructure are co-developed with organisations at the
-          forefront of agentic evaluations.
-        </p>
-      </div>
-    </div>
+<section id="collaborators" class:list={['scroll-mt-[92px] border-t border-rule pt-16', className]} aria-labelledby="collaborators-heading">
+  <div class="mb-9 max-w-[640px]">
+    <h2 id="collaborators-heading" class="text-balance font-display text-[clamp(20px,3vw,36px)] font-semibold leading-[1.05] tracking-[-0.035em]">
+      Collaborators
+    </h2>
+    <p class="mt-3 text-[clamp(17px,1.4vw,21px)] leading-[1.5] text-ink-1">
+      Our research and infrastructure are developed with leading institutions across interpretability and evaluation science.
+    </p>
+  </div>
 
-    <div
-      class="grid grid-cols-5 max-nav:flex max-nav:flex-wrap max-nav:justify-center"
-      role="list"
-      aria-label="Collaborating organisations"
-    >
-      {
-        orgs.map((org) => (
-          <div
-            role="listitem"
-            class="group flex min-h-[140px] items-center justify-center px-6 py-5 max-nav:min-h-[120px] max-nav:flex-[0_0_50%] max-xs:min-h-[90px] max-xs:px-3"
-          >
-            {org.website ? (
-              <a href={org.website} rel="noopener" target="_blank" aria-label={org.name}>
-                <Image
-                  src={getLogo(org.slug)}
-                  alt={org.name}
-                  width={200}
-                  densities={[1, 2]}
-                  loading="lazy"
-                  class:list={[
-                    'object-contain opacity-[0.78] brightness-0 transition-opacity group-hover:opacity-100 dark:invert',
-                    logoSize(org.slug),
-                  ]}
-                />
-              </a>
-            ) : (
+  <div
+    class="grid grid-cols-4 max-nav:flex max-nav:flex-wrap max-nav:justify-center"
+    role="list"
+    aria-label="Collaborating organisations"
+  >
+    {
+      orgs.map((org) => (
+        <div
+          role="listitem"
+          class="group flex min-h-[130px] items-center justify-center px-6 py-5 max-nav:min-h-[110px] max-nav:flex-[0_0_50%] max-xs:min-h-[86px] max-xs:px-3"
+        >
+          {org.website ? (
+            <a
+              href={org.website}
+              rel="noopener"
+              target="_blank"
+              aria-label={org.name}
+              class="collaborator-logo-link relative inline-flex items-center justify-center"
+              style={`--collaborator-logo: url("${org.logo.src}")`}
+            >
               <Image
-                src={getLogo(org.slug)}
+                src={org.logo}
                 alt={org.name}
                 width={200}
                 densities={[1, 2]}
                 loading="lazy"
                 class:list={[
-                  'object-contain opacity-[0.78] brightness-0 transition-opacity group-hover:opacity-100 dark:invert',
+                  'collaborator-logo object-contain opacity-[0.78] brightness-0 transition-opacity group-hover:opacity-100 dark:invert',
                   logoSize(org.slug),
                 ]}
               />
-            )}
-          </div>
-        ))
-      }
-    </div>
-  </Container>
+            </a>
+          ) : (
+            <Image
+              src={org.logo}
+              alt={org.name}
+              width={200}
+              densities={[1, 2]}
+              loading="lazy"
+              class:list={[
+                'object-contain opacity-[0.78] brightness-0 transition-opacity group-hover:opacity-100 dark:invert',
+                logoSize(org.slug),
+              ]}
+            />
+          )}
+        </div>
+      ))
+    }
+  </div>
 </section>
+
+<style>
+  .collaborator-logo-link::after {
+    position: absolute;
+    inset: 0;
+    background: var(--color-gold);
+    content: '';
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+    -webkit-mask: var(--collaborator-logo) center / contain no-repeat;
+    mask: var(--collaborator-logo) center / contain no-repeat;
+  }
+
+  .collaborator-logo-link:hover::after,
+  .collaborator-logo-link:focus-visible::after {
+    opacity: 1;
+  }
+
+  .collaborator-logo-link:hover .collaborator-logo,
+  .collaborator-logo-link:focus-visible .collaborator-logo {
+    opacity: 0;
+  }
+</style>
