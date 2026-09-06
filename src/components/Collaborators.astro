@@ -45,87 +45,55 @@ function logoSize(path: string): string {
   return 'max-h-[72px] max-w-[160px] max-nav:max-h-[62px] max-xs:max-h-[48px] max-xs:max-w-[120px]';
 }
 ---
-<section id="collaborators" class:list={['scroll-mt-[92px] border-t border-rule pt-16', className]} aria-labelledby="collaborators-heading">
-  <div class="mb-9 max-w-[640px]">
-    <h2 id="collaborators-heading" class="text-balance font-display text-[clamp(20px,3vw,36px)] font-semibold leading-[1.05] tracking-[-0.035em]">
-      Collaborators
-    </h2>
-    <p class="mt-3 text-[clamp(17px,1.4vw,21px)] leading-[1.5] text-ink-1">
-      Our research and infrastructure are developed with leading institutions across interpretability and evaluation science.
-    </p>
+<section id="collaborators" class:list={['collaborators-section scroll-mt-[92px]', className]} aria-labelledby="collaborators-heading">
+  <div class="collaborators-heading">
+    <h2 id="collaborators-heading" class="text-balance font-display text-[clamp(30px,3.5vw,46px)] font-semibold leading-[1.05] tracking-[-0.035em]">Collaborators</h2>
+    <p class="mt-4 text-[clamp(17px,1.4vw,21px)] leading-[1.5] text-ink-1">Our research and infrastructure are developed with leading institutions across interpretability and evaluation science.</p>
   </div>
 
-  <div
-    class="grid grid-cols-4 max-nav:flex max-nav:flex-wrap max-nav:justify-center"
-    role="list"
-    aria-label="Collaborating organisations"
-  >
-    {
-      orgs.map((org) => (
-        <div
-          role="listitem"
-          class="group flex min-h-[130px] items-center justify-center px-6 py-5 max-nav:min-h-[110px] max-nav:flex-[0_0_50%] max-xs:min-h-[86px] max-xs:px-3"
-        >
-          {org.website ? (
-            <a
-              href={org.website}
-              rel="noopener"
-              target="_blank"
-              aria-label={org.name}
-              class="collaborator-logo-link relative inline-flex items-center justify-center"
-              style={`--collaborator-logo: url("${org.logo.src}")`}
-            >
-              <Image
-                src={org.logo}
-                alt={org.name}
-                width={200}
-                densities={[1, 2]}
-                loading="lazy"
-                class:list={[
-                  'collaborator-logo object-contain opacity-[0.78] brightness-0 transition-opacity group-hover:opacity-100 dark:invert',
-                  logoSize(org.slug),
-                ]}
-              />
-            </a>
-          ) : (
-            <Image
-              src={org.logo}
-              alt={org.name}
-              width={200}
-              densities={[1, 2]}
-              loading="lazy"
-              class:list={[
-                'object-contain opacity-[0.78] brightness-0 transition-opacity group-hover:opacity-100 dark:invert',
-                logoSize(org.slug),
-              ]}
-            />
-          )}
+  <div class="collaborator-grid" role="list" aria-label="Collaborating organisations">
+    <svg class="collaborator-connection" viewBox="0 0 1000 240" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M115 128C220 18 304 217 372 122S519 13 630 126S800 218 884 108" stroke="currentColor" stroke-width="1" stroke-dasharray="1 4" stroke-linecap="round" /></svg>
+    {orgs.map((org) => {
+      const Link = org.website ? 'a' : 'div';
+      return (
+        <div role="listitem" class="collaborator-item">
+          <Link href={org.website || undefined} rel={org.website ? 'noopener' : undefined} target={org.website ? '_blank' : undefined} aria-label={org.name} class="collaborator-link">
+            <span class="collaborator-emblem">
+              <svg class="collaborator-ring" viewBox="0 0 240 240" fill="none" aria-hidden="true"><ellipse cx="120" cy="120" rx="111" ry="103" transform="rotate(-22 120 120)" stroke="currentColor" stroke-width="0.8" /><circle cx="120" cy="120" r="111" stroke="currentColor" stroke-width="0.9" stroke-dasharray="0.6 4" stroke-linecap="round" /><circle cx="230" cy="106" r="2.5" fill="currentColor" /></svg>
+              <span class="collaborator-logo-link" style={`--collaborator-logo: url("${org.logo.src}")`}>
+                <Image src={org.logo} alt="" aria-hidden="true" width={200} densities={[1, 2]} loading="lazy" class:list={['collaborator-logo object-contain brightness-0 dark:invert', logoSize(org.slug)]} />
+              </span>
+            </span>
+            <span class="collaborator-name">{org.name}</span>
+          </Link>
         </div>
-      ))
-    }
+      );
+    })}
   </div>
 </section>
 
 <style>
-  .collaborator-logo-link::after {
-    position: absolute;
-    inset: 0;
-    background: var(--color-gold);
-    content: '';
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 180ms ease;
-    -webkit-mask: var(--collaborator-logo) center / contain no-repeat;
-    mask: var(--collaborator-logo) center / contain no-repeat;
-  }
-
-  .collaborator-logo-link:hover::after,
-  .collaborator-logo-link:focus-visible::after {
-    opacity: 1;
-  }
-
-  .collaborator-logo-link:hover .collaborator-logo,
-  .collaborator-logo-link:focus-visible .collaborator-logo {
-    opacity: 0;
+  .collaborators-heading { max-width: 640px; margin: 0 auto 48px; text-align: center; }
+  .collaborator-grid { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+  .collaborator-item { position: relative; min-width: 0; }
+  .collaborator-connection { position: absolute; top: 0; width: 100%; height: 200px; color: #b59350; opacity: 0.6; pointer-events: none; }
+  .collaborator-link { display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; }
+  .collaborator-emblem { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center; width: min(100%, 200px); aspect-ratio: 1; }
+  .collaborator-ring { position: absolute; inset: -6%; width: 112%; height: 112%; color: #b59350; opacity: 0.65; pointer-events: none; transition: transform 500ms, opacity 500ms; }
+  .collaborator-logo-link { position: relative; display: inline-flex; align-items: center; justify-content: center; max-width: 78%; }
+  .collaborator-logo { max-width: 100%; transition: opacity 200ms; }
+  .collaborator-name { display: block; max-width: 24ch; min-height: 3em; font-size: 14px; line-height: 1.5; color: var(--color-ink-2); }
+  .collaborator-logo-link::after { position: absolute; inset: 0; background: var(--color-gold-deep); content: ''; opacity: 0; pointer-events: none; transition: opacity 200ms; mask: var(--collaborator-logo) center / contain no-repeat; }
+  .collaborator-link:is(:hover, :focus-visible) .collaborator-logo-link::after { opacity: 1; }
+  .collaborator-link:is(:hover, :focus-visible) .collaborator-logo { opacity: 0; }
+  .collaborator-link:is(:hover, :focus-visible) .collaborator-ring { transform: rotate(9deg); opacity: 1; }
+  .collaborator-link:is(:hover, :focus-visible) .collaborator-name { color: var(--color-gold-deep); }
+  :global(html.dark) .collaborator-ring, :global(html.dark) .collaborator-connection { color: #d8b774; }
+  @media (max-width: 760px) {
+    .collaborator-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 28px; max-width: 540px; margin-inline: auto; }
+    .collaborator-emblem { max-width: 176px; }
+    .collaborator-connection { display: none; }
+    .collaborator-link { gap: 17px; }
+    .collaborator-name { font-size: 13px; }
   }
 </style>

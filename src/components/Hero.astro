@@ -1,17 +1,35 @@
 ---
 import Container from './Container.astro';
+import HeroSphere from './HeroSphere.astro';
+import HeroOrbits from './HeroOrbits.astro';
+import HeroRays from './HeroRays.astro';
+import watercolor from '../assets/hero/watercolor.webp?url';
+
+const spheres = [
+  { x: 12, y: 25, size: 92, duration: 19, delay: -4 },
+  { x: 38, y: 13, size: 40, duration: 23, delay: -12 },
+  { x: 73, y: 18, size: 76, duration: 21, delay: -7 },
+  { x: 92, y: 37, size: 56, duration: 26, delay: -18 },
+  { x: 86, y: 71, size: 184, duration: 24, delay: -3 },
+  { x: 57, y: 85, size: 54, duration: 20, delay: -9 },
+  { x: 27, y: 79, size: 112, duration: 27, delay: -16 },
+  { x: 6, y: 63, size: 48, duration: 22, delay: -6 },
+];
 ---
 
-<section
-  id="hero"
-  class="group/hero relative flex min-h-[calc(100svh-76px)] items-center overflow-hidden max-nav:min-h-[70svh] max-xs:min-h-[62svh]"
->
-  <canvas id="parallax-field" class="absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
-  <div class="hero-wash absolute inset-0" aria-hidden="true"></div>
+<section id="hero" class="hero" data-running="false" aria-labelledby="hero-title" style={`--watercolor: url('${watercolor}')`}>
+  <div class="hero-watercolor" aria-hidden="true"></div>
+  <div class="hero-paper" aria-hidden="true"></div>
+  <HeroOrbits />
 
-  <Container class="relative z-10 w-full py-20 max-nav:py-14">
+  <div class="hero-spheres" role="group" aria-label="Explore the spheres to reveal their inner circuitry">
+    {spheres.map((sphere, index) => <HeroSphere {...sphere} index={index} />)}
+  </div>
+  <HeroRays count={spheres.length} />
+
+  <Container class="hero-content relative z-10 w-full py-20 max-nav:py-14">
     <div class="mx-auto max-w-[780px] text-center">
-      <h1 class="text-balance font-display text-[clamp(44px,5.7vw,76px)] font-semibold leading-[0.98] tracking-[-0.045em] max-xs:text-[clamp(26px,calc(11.3vw-10px),44px)]">
+      <h1 id="hero-title" class="text-balance font-display text-[clamp(44px,5.7vw,76px)] font-semibold leading-[0.98] tracking-[-0.045em] max-xs:text-[clamp(26px,calc(11.3vw-10px),44px)]">
         A <span class="text-gold">deeper look</span> at <span class="whitespace-nowrap">AI agent evaluations</span>
       </h1>
       <p class="mx-auto mt-7 max-w-[640px] text-balance text-[clamp(17px,1.9vw,23px)] leading-[1.5] text-ink">
@@ -19,352 +37,65 @@ import Container from './Container.astro';
       </p>
     </div>
   </Container>
+
 </section>
 
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    min-height: clamp(700px, calc(100svh - 76px), 900px);
+    align-items: center;
+    overflow: hidden;
+    isolation: isolate;
+    background: #f3eee5;
+  }
+  .hero-watercolor, .hero-paper, .hero-spheres { position: absolute; inset: 0; }
+  .hero-watercolor { background: var(--watercolor) center / cover no-repeat; opacity: 0.87; }
+  .hero-paper {
+    pointer-events: none;
+    background: radial-gradient(ellipse 49% 38% at 50% 48%, #f4f1eaa6, #f4f1ea38 65%, transparent);
+  }
+  .hero :global(.hero-content) { pointer-events: none; }
+  .hero h1, .hero p { pointer-events: auto; }
+  .hero-spheres { z-index: 2; }
+  :global(html.dark) .hero { background: #151a18; }
+  :global(html.dark) .hero-watercolor {
+    filter: invert(1) grayscale(1) sepia(0.24) hue-rotate(145deg) saturate(0.5);
+    opacity: 0.42;
+  }
+  :global(html.dark) .hero-paper { background: radial-gradient(ellipse 48% 40% at 50% 48%, #151a18d9, #151a185c 65%, transparent); }
+  @media (max-width: 1000px) {
+    .hero { min-height: 740px; }
+  }
+  @media (max-width: 600px) {
+    .hero { min-height: 720px; }
+    .hero-watercolor { background-position: 61% center; }
+    .hero-paper { background: radial-gradient(ellipse 75% 37% at 50% 46%, #f4f1ead9, #f4f1ea80 65%, transparent); }
+    .hero :global(.hero-content) { transform: translateY(-30px); }
+  }
+</style>
+
 <script>
-  type FieldPoint = {
-    x: number;
-    y: number;
-    depth: number;
-    phase: number;
-    drift: number;
-  };
+  import { initSphereInteractions } from '../scripts/hero-spheres';
 
-  (function createParallaxField() {
-    const canvas = document.getElementById('parallax-field') as HTMLCanvasElement | null;
-    const hero = document.getElementById('hero');
-    const context = canvas?.getContext('2d');
-    if (!canvas || !hero || !context) return;
+  const hero = document.querySelector<HTMLElement>('#hero');
+  if (hero) {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let visible = true;
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const pointer = { x: 0, y: 0, targetX: 0, targetY: 0, manualActive: false };
-    const automaticFocuses = [
-      { x: 0.2, y: 0.3 },
-      { x: 0.78, y: 0.68 },
-      { x: 0.26, y: 0.76 },
-      { x: 0.8, y: 0.25 },
-    ];
-    const automaticDelay = 1_800;
-    const automaticDuration = 3_200;
-    const automaticInterval = 10_500;
-    let width = 0;
-    let height = 0;
-    let points: FieldPoint[] = [];
-    let animationFrame = 0;
-    let startTime = performance.now();
-    let heroVisible = true;
-    let pausedAt: number | null = null;
-    let lastManualInteraction = -Infinity;
-    let revealMode = '';
-    let colors = { point: '#111411', line: '#111411', gold: '#c89a2a' };
-
-    // A deterministic generator keeps the composition stable across theme changes.
-    let seed = 912_731;
-    const random = () => {
-      seed = (seed * 16_807) % 2_147_483_647;
-      return (seed - 1) / 2_147_483_646;
-    };
-
-    const cssColor = (name: string) =>
-      getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    const withAlpha = (color: string, alpha: number) => {
-      const hex = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
-      if (!hex) return color;
-      return `rgba(${parseInt(hex[1], 16)}, ${parseInt(hex[2], 16)}, ${parseInt(hex[3], 16)}, ${alpha})`;
-    };
-    const refreshColors = () => {
-      colors = {
-        point: cssColor('--color-field-point'),
-        line: cssColor('--color-field-line'),
-        gold: cssColor('--color-gold'),
-      };
-    };
-
-    const distanceToSegment = (
-      x: number,
-      y: number,
-      a: { x: number; y: number },
-      b: { x: number; y: number },
-    ) => {
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const lengthSquared = dx * dx + dy * dy;
-      if (lengthSquared === 0) return Math.hypot(x - a.x, y - a.y);
-      const progress = Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / lengthSquared));
-      return Math.hypot(x - (a.x + progress * dx), y - (a.y + progress * dy));
-    };
-
-    function rebuild() {
-      const bounds = hero.getBoundingClientRect();
-      refreshColors();
-      width = Math.max(1, bounds.width);
-      height = Math.max(1, bounds.height);
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(width * ratio);
-      canvas.height = Math.round(height * ratio);
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      context.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-      seed = 912_731;
-      // Keep roughly the same visual density as the canvas changes shape:
-      // compact heroes need fewer points, while full-screen fields can carry more.
-      const count = Math.max(26, Math.min(220, Math.round((width * height) / 7_000)));
-      points = Array.from({ length: count }, () => ({
-        x: random() * width,
-        y: random() * height,
-        depth: 0.35 + random() * 0.95,
-        phase: random() * Math.PI * 2,
-        drift: 0.14 + random() * 0.24,
-      }));
-      pointer.x = pointer.targetX = width * 0.72;
-      pointer.y = pointer.targetY = height * 0.46;
-      restart();
+    function updateMotion() {
+      if (!hero) return;
+      hero.dataset.running = String(visible && !document.hidden && !reducedMotion.matches);
     }
 
-    function position(point: FieldPoint, time: number) {
-      const idleX = reducedMotion.matches ? 0 : Math.sin(time * point.drift + point.phase) * 11;
-      const idleY = reducedMotion.matches ? 0 : Math.cos(time * point.drift * 0.82 + point.phase) * 8;
-      return { x: point.x + idleX, y: point.y + idleY };
-    }
-
-    function setRevealMode(mode: 'manual' | 'automatic' | 'idle') {
-      if (mode === revealMode) return;
-      revealMode = mode;
-      canvas.dataset.reveal = mode;
-    }
-
-    function draw(now: number) {
-      animationFrame = 0;
-      const time = (now - startTime) / 1000;
-      const automaticElapsed = now - startTime - automaticDelay;
-      const automaticCycle = automaticElapsed >= 0
-        ? Math.floor(automaticElapsed / automaticInterval)
-        : -1;
-      const automaticPhase = automaticElapsed >= 0
-        ? automaticElapsed % automaticInterval
-        : automaticDuration;
-      const automaticActive = !reducedMotion.matches
-        && !pointer.manualActive
-        && now - lastManualInteraction > 1_500
-        && automaticCycle >= 0
-        && automaticPhase < automaticDuration;
-
-      if (automaticActive) {
-        const focus = automaticFocuses[automaticCycle % automaticFocuses.length];
-        pointer.targetX = width * focus.x;
-        pointer.targetY = height * focus.y;
-        setRevealMode('automatic');
-      } else if (pointer.manualActive) {
-        setRevealMode('manual');
-      } else {
-        setRevealMode('idle');
-      }
-
-      const lensActive = pointer.manualActive || automaticActive;
-      pointer.x += (pointer.targetX - pointer.x) * 0.075;
-      pointer.y += (pointer.targetY - pointer.y) * 0.075;
-      context.clearRect(0, 0, width, height);
-
-      const pointColor = colors.point;
-      const lineColor = colors.line;
-      const goldColor = colors.gold;
-      const naturalPositions = points.map((point) => position(point, time));
-      const connectionDistance = Math.min(158, 96 + width * 0.043);
-      const lensRadius = Math.min(235, 138 + width * 0.064);
-      const positions = naturalPositions.map((current) => {
-        if (!lensActive) return current;
-        const dx = current.x - pointer.x;
-        const dy = current.y - pointer.y;
-        const distance = Math.hypot(dx, dy);
-        if (distance >= lensRadius) return current;
-        const lens = 1 - distance / lensRadius;
-        const magnification = 1 + lens * lens * 0.22;
-        return {
-          x: pointer.x + dx * magnification,
-          y: pointer.y + dy * magnification,
-        };
-      });
-      const activeEdges: Array<{
-        a: { x: number; y: number };
-        b: { x: number; y: number };
-        strength: number;
-        phase: number;
-        speed: number;
-      }> = [];
-
-      if (lensActive) {
-        const glow = context.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, lensRadius);
-        glow.addColorStop(0, withAlpha(goldColor, 0.15));
-        glow.addColorStop(0.52, withAlpha(goldColor, 0.055));
-        glow.addColorStop(1, withAlpha(goldColor, 0));
-        context.fillStyle = glow;
-        context.beginPath();
-        context.arc(pointer.x, pointer.y, lensRadius, 0, Math.PI * 2);
-        context.fill();
-      }
-
-      // The network stays monochrome until the pointer exposes a local subgraph.
-      // Gold signals then make the communication inside that area legible.
-      context.lineWidth = 0.85;
-      for (let i = 0; i < points.length; i += 1) {
-        const a = positions[i];
-        for (let j = i + 1; j < points.length; j += 1) {
-          const b = positions[j];
-          const distance = Math.hypot(a.x - b.x, a.y - b.y);
-          if (distance > connectionDistance) continue;
-
-          const distanceFactor = 1 - distance / connectionDistance;
-          const opacity = 0.14 + distanceFactor * 0.22;
-          context.strokeStyle = lineColor;
-          context.globalAlpha = opacity;
-          context.lineWidth = 0.8;
-          context.beginPath();
-          context.moveTo(a.x, a.y);
-          context.lineTo(b.x, b.y);
-          context.stroke();
-
-          const lensDistance = distanceToSegment(pointer.x, pointer.y, a, b);
-          const lens = lensActive ? Math.max(0, 1 - lensDistance / lensRadius) : 0;
-          if (lens > 0) {
-            context.strokeStyle = goldColor;
-            context.globalAlpha = Math.min(1, lens * (0.62 + distanceFactor * 0.5));
-            context.lineWidth = 1.05 + lens * 1.2;
-            context.beginPath();
-            context.moveTo(a.x, a.y);
-            context.lineTo(b.x, b.y);
-            context.stroke();
-
-            if ((i * 31 + j * 17) % 4 === 0) {
-              activeEdges.push({
-                a,
-                b,
-                strength: lens,
-                phase: ((i * 37 + j * 19) % 101) / 101,
-                speed: 0.18 + ((i * 11 + j * 7) % 9) * 0.008,
-              });
-            }
-          }
-          context.globalAlpha = 1;
-        }
-      }
-
-      points.forEach((point, index) => {
-        const current = positions[index];
-        const lensDistance = Math.hypot(current.x - pointer.x, current.y - pointer.y);
-        const lens = lensActive ? Math.max(0, 1 - lensDistance / lensRadius) : 0;
-
-        context.fillStyle = pointColor;
-        context.globalAlpha = Math.min(0.96, 0.68 + point.depth * 0.22);
-        context.beginPath();
-        context.arc(current.x, current.y, 1.5 + point.depth * 1.05, 0, Math.PI * 2);
-        context.fill();
-
-        if (lens > 0) {
-          context.fillStyle = goldColor;
-          context.globalAlpha = Math.min(1, lens * 1.28);
-          context.beginPath();
-          context.arc(current.x, current.y, 2 + point.depth * 1.05 + lens * 1.65, 0, Math.PI * 2);
-          context.fill();
-        }
-        context.globalAlpha = 1;
-      });
-
-      activeEdges.forEach((edge) => {
-        // Every signal follows its own steady, cursor-independent timeline.
-        // Hover changes only its visibility, never its position or speed.
-        const travel = (time * edge.speed + edge.phase) % 1;
-        const x = edge.a.x + (edge.b.x - edge.a.x) * travel;
-        const y = edge.a.y + (edge.b.y - edge.a.y) * travel;
-
-        context.fillStyle = goldColor;
-        context.globalAlpha = edge.strength * 0.16;
-        context.beginPath();
-        context.arc(x, y, 5.5, 0, Math.PI * 2);
-        context.fill();
-        context.globalAlpha = Math.min(1, edge.strength * 1.1);
-        context.beginPath();
-        context.arc(x, y, 1.8, 0, Math.PI * 2);
-        context.fill();
-        context.globalAlpha = 1;
-      });
-
-      if (shouldAnimate()) animationFrame = window.requestAnimationFrame(draw);
-    }
-
-    function shouldAnimate() {
-      return !reducedMotion.matches && heroVisible && document.visibilityState === 'visible';
-    }
-
-    function cancelAnimation() {
-      window.cancelAnimationFrame(animationFrame);
-      animationFrame = 0;
-    }
-
-    function pauseAnimation() {
-      cancelAnimation();
-      pausedAt ??= performance.now();
-    }
-
-    function resumeAnimation() {
-      if (!shouldAnimate() || animationFrame !== 0) return;
-      const now = performance.now();
-      if (pausedAt !== null) {
-        const pauseDuration = now - pausedAt;
-        startTime += pauseDuration;
-        if (Number.isFinite(lastManualInteraction)) lastManualInteraction += pauseDuration;
-        pausedAt = null;
-      }
-      animationFrame = window.requestAnimationFrame(draw);
-    }
-
-    function restart() {
-      cancelAnimation();
-      pausedAt = null;
-      startTime = performance.now();
-      draw(startTime);
-    }
-
-    hero.addEventListener('pointermove', (event) => {
-      const bounds = hero.getBoundingClientRect();
-      pointer.targetX = event.clientX - bounds.left;
-      pointer.targetY = event.clientY - bounds.top;
-      pointer.manualActive = true;
-      lastManualInteraction = performance.now();
-      if (reducedMotion.matches) {
-        pointer.x = pointer.targetX;
-        pointer.y = pointer.targetY;
-        draw(performance.now());
-      }
-    });
-    hero.addEventListener('pointerleave', () => {
-      pointer.manualActive = false;
-      lastManualInteraction = performance.now();
-      if (reducedMotion.matches) {
-        pointer.x = pointer.targetX;
-        pointer.y = pointer.targetY;
-        draw(performance.now());
-      }
-    });
-
-    new ResizeObserver(rebuild).observe(hero);
+    initSphereInteractions(hero, reducedMotion);
     new IntersectionObserver(([entry]) => {
-      heroVisible = entry?.isIntersecting ?? false;
-      if (heroVisible) resumeAnimation();
-      else pauseAnimation();
-    }, { threshold: 0.01 }).observe(hero);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') resumeAnimation();
-      else pauseAnimation();
-    });
-    new MutationObserver(() => {
-      refreshColors();
-      if (reducedMotion.matches) draw(performance.now());
-    }).observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-    reducedMotion.addEventListener('change', restart);
-    rebuild();
-  })();
+      visible = entry.isIntersecting;
+      updateMotion();
+    }, { threshold: 0 }).observe(hero);
+    document.addEventListener('visibilitychange', updateMotion);
+    reducedMotion.addEventListener('change', updateMotion);
+    updateMotion();
+  }
 </script>

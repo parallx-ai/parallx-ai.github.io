@@ -1,23 +1,20 @@
 ---
 interface Props {
   role: string;
+  href: string;
 }
 
-const { role } = Astro.props;
+const { role, href } = Astro.props;
 ---
 
-<div class="apply-action" data-apply-action>
-  <button
+<div class="apply-action">
+  <a
     class="apply-button"
-    type="button"
+    href={href}
     aria-label={`Apply to this position: ${role}`}
-    aria-expanded="false"
   >
     Apply to this position
-  </button>
-  <p class="apply-warning" aria-live="polite" hidden>
-    The application form will be available soon, check again tomorrow!
-  </p>
+  </a>
 </div>
 
 <style>
@@ -43,25 +40,11 @@ const { role } = Astro.props;
     line-height: 1;
     padding: 0.875rem 1.625rem;
     opacity: 1;
+    text-decoration: none;
   }
 
-  .apply-warning {
-    color: var(--color-gold-deep);
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.45;
+  .apply-button:hover {
+    color: white;
+    border: 0;
   }
 </style>
-
-<script>
-  document.querySelectorAll<HTMLElement>('[data-apply-action]').forEach((action) => {
-    const button = action.querySelector<HTMLButtonElement>('.apply-button');
-    const warning = action.querySelector<HTMLElement>('.apply-warning');
-
-    button?.addEventListener('click', () => {
-      if (!warning) return;
-      warning.hidden = false;
-      button.setAttribute('aria-expanded', 'true');
-    });
-  });
-</script>

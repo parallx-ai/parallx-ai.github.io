@@ -13,6 +13,10 @@ npm run preview  # serve the production build
 
 Requires Node 20+.
 
+## Link preview image
+
+The shared social-media and chat link preview uses `src/assets/social-banner.png`. `src/layouts/Base.astro` supplies this image and its intrinsic dimensions to the Open Graph and Twitter card metadata on every page. Replace the image and rebuild to update the banner.
+
 ## Deployment
 
 Push to `main` and `.github/workflows/deploy.yml` builds the site with Astro

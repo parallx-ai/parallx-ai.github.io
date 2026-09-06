@@ -1,0 +1,83 @@
+---
+import '../styles/floating-controls.css';
+---
+<!-- Adapted from the floating control in gsarti/gsarti.github.io. -->
+
+<button
+  class="back-to-top floating-control"
+  type="button"
+  aria-label="Back to top"
+  aria-hidden="true"
+  tabindex="-1"
+  title="Back to top"
+  data-back-to-top
+>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6" /></svg>
+</button>
+
+<style>
+  .back-to-top {
+    display: inline-flex;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(0.45rem);
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      background-color 160ms ease,
+      opacity 160ms ease,
+      transform 160ms ease,
+      visibility 160ms;
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  @media (max-width: calc(80rem - 0.02px)) {
+    /* The reading menu occupies the rightmost position on article pages. */
+    :global(body:has([data-prose-toc-toggle]:not([hidden]))) .back-to-top {
+      right: calc(var(--floating-control-inset) + var(--floating-control-size) + var(--floating-control-gap));
+    }
+
+    /* The open menu already includes a labelled Back to top action. */
+    :global(body:has([data-prose-toc-toggle][aria-expanded='true'])) .back-to-top {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+</style>
+
+<script>
+  const backToTop = document.querySelector<HTMLButtonElement>('[data-back-to-top]');
+
+  if (backToTop) {
+    const updateVisibility = () => {
+      const isVisible = window.scrollY > Math.max(320, window.innerHeight * 0.5);
+      backToTop.classList.toggle('is-visible', isVisible);
+      backToTop.setAttribute('aria-hidden', String(!isVisible));
+      backToTop.tabIndex = isVisible ? 0 : -1;
+    };
+
+    backToTop.addEventListener('click', () => {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const heading = document.querySelector<HTMLElement>('h1');
+      if (heading) {
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+      }
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    window.addEventListener('resize', updateVisibility, { passive: true });
+    window.addEventListener('pageshow', updateVisibility);
+    updateVisibility();
+  }
+</script>

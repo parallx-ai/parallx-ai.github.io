@@ -1,0 +1,44 @@
+---
+interface Props { count: number; }
+const { count } = Astro.props;
+---
+
+<svg class="hero-rays" fill="none" aria-hidden="true">
+  <g mask="url(#orbit-reading-mask)">
+    {Array.from({ length: count }, (_, index) => (
+      <g class="hero-ray" data-ray={index} opacity="0">
+        <path class="ray-incoming" pathLength="1" />
+        <path class="ray-branch" pathLength="1" />
+        <path class="ray-branch" pathLength="1" />
+        <circle class="ray-impact" r="4" />
+      </g>
+    ))}
+  </g>
+</svg>
+
+<style>
+  .hero-rays {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    color: #c89a2a;
+  }
+  .hero-ray path {
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 0.45 2;
+    stroke-dashoffset: 0.45;
+    opacity: 0;
+  }
+  .hero-ray .ray-branch { stroke-width: 1.5; }
+  .ray-impact { fill: #fff0bc; opacity: 0; filter: drop-shadow(0 0 4px #edc56c); }
+  :global(html.dark) .hero-rays { color: #efd08a; }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-rays { display: none; }
+  }
+</style>

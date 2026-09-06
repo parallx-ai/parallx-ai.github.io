@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 400" preserveAspectRatio="none">
+  <defs>
+    <filter id="paper-edge" x="-10%" y="-30%" width="120%" height="160%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022 0.04" numOctaves="3" seed="12" result="grain" />
+      <feDisplacementMap in="SourceGraphic" in2="grain" scale="22" xChannelSelector="R" yChannelSelector="G" />
+      <feGaussianBlur stdDeviation="2.5" />
+    </filter>
+    <linearGradient id="bleed" x2="0" y2="1">
+      <stop stop-color="white" stop-opacity="0" />
+      <stop offset="0.06" stop-color="white" stop-opacity="0.6" />
+      <stop offset="0.14" stop-color="white" />
+    </linearGradient>
+  </defs>
+  <path d="M-100 36C115 68 243 12 410 31S682 72 888 36 1227 22 1540 46V550H-100Z" fill="url(#bleed)" filter="url(#paper-edge)" />
+</svg>

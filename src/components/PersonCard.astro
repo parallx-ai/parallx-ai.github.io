@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import watercolor from '../assets/hero/watercolor.webp?url';
 
 interface Person {
   name: string;
@@ -57,13 +58,16 @@ const socials = (
   .filter((social): social is typeof social & { url: string } => !!social.url);
 ---
 
-<article data-person={person.slug} class:list={['group/person min-w-0', variant === 'team' ? 'max-w-[250px]' : 'max-w-[220px]', className]}>
-  <div class="relative mb-4">
+<article data-person={person.slug} class:list={['person-card group/person min-w-0', variant === 'team' ? 'max-w-[300px]' : 'max-w-[240px]', className]} style={`--portrait-watercolor: url('${watercolor}')`}>
+  <div class:list={['portrait-composition', variant === 'team' ? 'portrait-team' : 'portrait-advisor']}>
+    <svg class="portrait-orbit" viewBox="0 0 240 240" fill="none" aria-hidden="true">
+      <circle cx="120" cy="120" r="109" stroke="currentColor" stroke-width="0.9" stroke-dasharray="0.8 4" stroke-linecap="round" />
+      <ellipse cx="120" cy="120" rx="116" ry="103" transform="rotate(-28 120 120)" stroke="currentColor" stroke-width="0.6" opacity="0.55" />
+      <circle cx="23.8" cy="171.3" r="2.6" fill="currentColor" />
+      <circle cx="217" cy="70.3" r="1.8" fill="currentColor" />
+    </svg>
     <div
-      class:list={[
-        'relative mx-auto aspect-square overflow-hidden rounded-full border border-rule bg-paper',
-        variant === 'team' ? 'w-full max-w-[160px] max-xs:max-w-[124px]' : 'w-full max-w-[132px] max-xs:max-w-[112px]',
-      ]}
+      class="portrait-image-frame relative mx-auto aspect-square overflow-hidden rounded-full"
     >
       <Image
         src={photo}
@@ -72,16 +76,16 @@ const socials = (
         quality={92}
         loading="lazy"
         class:list={[
-          'absolute inset-0 h-full w-full object-cover [filter:saturate(0.78)_contrast(0.98)] transition duration-500 group-hover/person:[filter:saturate(0.96)_contrast(1)]',
+          'portrait-image absolute inset-0 h-full w-full object-cover',
           framing,
         ]}
       />
     </div>
   </div>
 
-  <div class="border-b border-rule-soft pb-3 text-center">
+  <div class="person-content text-center">
     <div>
-      <Heading class="font-display text-[clamp(20px,2vw,24px)] font-semibold leading-[1.35] tracking-[-0.015em]">
+      <Heading class="person-name font-display text-[clamp(20px,2vw,25px)] font-semibold leading-[1.25] tracking-[-0.015em]">
         {person.website ? (
           <a href={person.website} rel="noopener" target="_blank" class="transition-colors hover:text-gold-deep">
             {person.name}
@@ -90,12 +94,12 @@ const socials = (
           person.name
         )}
       </Heading>
-      {variant === 'team' && <p class="mt-1 text-[clamp(13px,1.25vw,15px)] font-medium text-ink-2">{person.role}</p>}
-      <p class="mt-1 text-[clamp(14px,1.4vw,17px)] leading-[1.45] text-ink-3">{person.bio}</p>
+      {variant === 'team' && <p class="person-role mt-0.5 text-[clamp(13px,1.25vw,15px)] font-medium text-ink-2">{person.role}</p>}
+      <p class="person-bio mt-1 text-[clamp(14px,1.4vw,16px)] leading-[1.5] text-ink-2">{person.bio}</p>
     </div>
 
     {socials.length > 0 && (
-      <div class="mt-2 flex flex-wrap items-center justify-center gap-2">
+      <div class="person-socials mt-1.5 flex flex-wrap items-center justify-center gap-1">
         {socials.map((social) => (
           <a
             href={social.url}
@@ -103,7 +107,7 @@ const socials = (
             target="_blank"
             aria-label={`${person.name} — ${social.label}`}
             title={social.label}
-            class="text-ink-3 transition-colors hover:text-gold-deep"
+            class="person-social text-ink-2 transition-colors hover:text-gold-deep"
           >
             <svg class={social.key === 'twitter' ? 'h-[14px] w-[14px]' : 'h-[16px] w-[16px]'} aria-hidden="true">
               <use href={`#icon-${social.key}`} />
@@ -114,3 +118,31 @@ const socials = (
     )}
   </div>
 </article>
+
+<style>
+  .person-card { width: 100%; justify-self: center; }
+  .portrait-composition { position: relative; isolation: isolate; width: min(100%, 190px); margin: 12px auto 28px; }
+  .portrait-advisor { width: min(100%, 152px); }
+  .portrait-composition::before {
+    content: '';
+    position: absolute;
+    inset: -15%;
+    z-index: -1;
+    background: var(--portrait-watercolor) 83% 84% / 650px auto;
+    opacity: 0.25;
+    mask-image: radial-gradient(ellipse closest-side, #000 62%, #0008 78%, transparent 100%);
+  }
+  .portrait-orbit { position: absolute; width: 126%; height: 126%; left: -13%; top: -13%; color: #b28c44; opacity: 0.8; pointer-events: none; transform: rotate(0deg); transition: transform 700ms; }
+  .portrait-image-frame { background: #d9d0bb; mask-image: radial-gradient(circle closest-side, #000 88%, #000000e8 94%, #0008 98%, transparent 100%); }
+  .person-card:is(:hover, :focus-within) .portrait-orbit { transform: rotate(12deg); }
+  .person-social { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; }
+  .person-social:hover { background: #b797551a; }
+  :global(html.dark) .portrait-composition::before { filter: invert(1) grayscale(1); opacity: 0.28; }
+  :global(html.dark) .portrait-orbit { color: #d8b774; opacity: 0.85; }
+  :global(html.dark) .portrait-image-frame { background: #d5d6c6; }
+  @media (max-width: 600px) {
+    .portrait-composition { max-width: 142px; margin-bottom: 25px; }
+    .portrait-advisor { max-width: 122px; }
+    .person-socials { flex-wrap: nowrap; }
+  }
+</style>

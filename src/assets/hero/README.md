@@ -1,0 +1,11 @@
+# Hero watercolor
+
+`watercolor.webp` is the local background plate for `Hero.astro`. Created on 2026-09-05 using the built-in image generation tool, with the user's attached Parallax banner as a style reference. The generated PNG was converted to WebP at quality 85. The spheres, glass shells, circuits, and interaction are separate HTML/CSS/SVG in `HeroSphere.astro`.
+
+The sphere shells use SVG pigment grain and feathered masks. `HeroOrbits.astro` draws gold orbital paths and connections that follow the floating spheres, with a soft mask behind the hero text. These effects are rendered in code and do not change the background image.
+
+`HeroRays.astro` and `src/scripts/hero-spheres.ts` coordinate the interactive reveal: a golden ray travels from the hero's top edge to the selected sphere, reveals its circuitry at impact, and splits toward the hero's lower edge. Ray geometry is measured on activation and resize; the Web Animations API drives travel without per-frame layout reads. Hover and keyboard focus reveal temporarily, clicks pin a sphere, and Escape dismisses the reveal. Reduced motion reveals the circuitry immediately without a ray.
+
+Generation prompt:
+
+> Use case: style-transfer. Asset type: clean watercolor background plate for an interactive website hero. The attached image is a STYLE REFERENCE. Create only the underlying monochrome ink-and-watercolor background, with no spheres, no circles, no gold, no circuitry, no orbit lines, no rays, no text. Match its handmade ivory paper, soft gray pigment blooms, feathered layered edges, and flowing deep charcoal ink. Wide 2:1 landscape. Composition must support centered dark headline text: keep the middle 65 percent horizontally and middle 50 percent vertically very light, open ivory watercolor paper. Flowing irregular charcoal washes enter from the far right edge and sweep along the bottom edge, with light gray translucent feathered layers. Keep the darkest ink primarily at the bottom 15 percent and at the far right edge, so the central reading area is uncluttered. Fine natural paper grain and beautiful organic watercolor diffusion, much like the reference. Full bleed. No digital gradients, no vector shapes, no objects, no symbols. It should feel like the same visual identity as the reference, with only the background present.

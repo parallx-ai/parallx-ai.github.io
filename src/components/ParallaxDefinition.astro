@@ -1,0 +1,107 @@
+---
+import watercolor from '../assets/hero/watercolor.webp?url';
+---
+
+<aside class="parallax-definition" aria-label="Definition of parallax" style={`--definition-watercolor: url('${watercolor}')`}>
+  <dl class="definition-copy">
+    <dt><dfn>Parallax</dfn> <span class="definition-part">(n.)</span></dt>
+    <dd>the way an object's apparent position shifts when seen from two viewpoints, the basis for perceiving depth.</dd>
+  </dl>
+  <div class="definition-visual" aria-hidden="true">
+    <svg viewBox="0 0 300 260" fill="none">
+      <defs>
+        <clipPath id="definition-object"><circle cx="150" cy="120" r="18.5" /></clipPath>
+      </defs>
+
+      {/* Slightly bowed strokes and offset impressions suggest a pen-drawn
+          optics plate; labels remain crisp and the projection stays exact. */}
+      <g class="diagram-fine">
+        <path d="M28 36C87 34.8 211 37.4 272 36" />
+        <path d="M29 39C112 38.2 209 40.1 271 38.8" opacity="0.28" />
+        <path d="M28 32v8m244-8v8M150 31v10" />
+        <path d="M150 47V213" stroke-dasharray="1 6" opacity="0.38" />
+      </g>
+      <g class="diagram-rays">
+        <path d="M62.3 36C91.1 63.2 122.4 93.8 150 120M237.7 36C209 64.1 179.5 91.5 150 120" stroke-dasharray="4 5" />
+        <path d="M56 210C88.1 179.4 120.4 148.1 150 120C181.6 149.2 214.4 182.1 244 210" />
+        <path d="M57 211C89.7 180.3 123 148.3 150.9 121M151 121C183.1 151 214.8 182.2 245 210.8" opacity="0.18" />
+      </g>
+      <g class="diagram-fine">
+        <path d="M56 210C110 209.4 193 210.8 244 210" />
+        <path d="M44 216h24m164 0h24M47 216l-3 4m9-4-3 4m9-4-3 4m9-4-3 4m175-4-3 4m9-4-3 4m9-4-3 4m9-4-3 4" opacity="0.55" />
+      </g>
+      <g class="diagram-angle">
+        <path d="M131 139Q150 153 169 139" />
+        <path d="m131 139 1.5 5m-1.5-5 5 .2m33-.2-1.5 5m1.5-5-5 .2" />
+      </g>
+      <g class="diagram-points">
+        <circle cx="62.3" cy="36" r="3.5" />
+        <circle cx="237.7" cy="36" r="3.5" />
+        <circle cx="56" cy="210" r="4" />
+        <circle cx="244" cy="210" r="4" />
+      </g>
+      <g class="diagram-object">
+        <path d="M150 101C160.3 100.6 169.5 110.2 169 120C169.2 130.6 160 139.4 150 139C139.5 139.2 130.7 130.8 131 120C130.8 109.4 139.9 101.3 150 101Z" />
+        <g class="diagram-hatching" clip-path="url(#definition-object)">
+          <path d="M139 100Q163 107 170 127M145 100Q166 108 171 121M133 104Q159 110 169 132M129 108Q155 113 166 138M128 113Q151 117 160 141M129 119Q147 121 152 141M131 125Q140 126 144 141" />
+          <path d="m162 100-4 41m8-38-3 36m-8-37-2 37m-4-7-1 8M137 134l30-13m-24 18 26-11m-17 13 17-6" opacity="0.55" />
+        </g>
+      </g>
+      <g class="diagram-labels">
+        <text x="62" y="23" text-anchor="middle">B′</text>
+        <text x="238" y="23" text-anchor="middle">A′</text>
+        <text x="56" y="243" text-anchor="middle">A</text>
+        <text x="244" y="243" text-anchor="middle">B</text>
+        <text x="181" y="124">O</text>
+        <text class="diagram-angle-label" x="150" y="172" text-anchor="middle">α</text>
+      </g>
+    </svg>
+  </div>
+</aside>
+
+<style>
+  .parallax-definition {
+    --diagram-ink: #565344;
+    --diagram-gold: #a38037;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 196px;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 32px;
+    padding: 24px 0;
+    border-block: 1px solid #b7975552;
+  }
+  .definition-copy { margin: 0; }
+  .definition-copy dt { display: flex; align-items: baseline; gap: 12px; color: var(--color-ink); }
+  .definition-copy dfn { font-family: var(--font-display); font-size: 34px; font-style: normal; font-weight: 600; letter-spacing: -0.035em; line-height: 1.15; }
+  .definition-part { color: var(--color-ink-2); font-family: var(--font-display); font-size: 17px; font-style: italic; }
+  .definition-copy dd { margin: 10px 0 0; color: var(--color-ink-1); font-family: var(--font-display); font-size: 21px; line-height: 1.5; text-wrap: pretty; }
+  .definition-visual { position: relative; isolation: isolate; }
+  .definition-visual::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--definition-watercolor) 18% 18% / 620px auto; opacity: 0.24; mask-image: radial-gradient(ellipse closest-side, #000 40%, transparent); }
+  .definition-visual svg { display: block; width: 100%; height: auto; }
+  .diagram-fine, .diagram-rays, .diagram-angle, .diagram-points, .diagram-object { stroke-linecap: round; stroke-linejoin: round; }
+  .diagram-fine { stroke: var(--diagram-ink); stroke-width: 0.8; opacity: 0.8; }
+  .diagram-rays { stroke: var(--diagram-ink); stroke-width: 1.35; }
+  .diagram-angle { stroke: var(--diagram-gold); stroke-width: 1.2; }
+  .diagram-points { fill: var(--color-cream); stroke: var(--diagram-ink); stroke-width: 1.3; }
+  .diagram-object { fill: var(--color-cream); stroke: var(--diagram-ink); stroke-width: 1.2; }
+  .diagram-hatching { fill: none; stroke-width: 0.8; }
+  .diagram-labels { fill: var(--diagram-ink); font-family: var(--font-display); font-size: 20px; font-style: italic; }
+  .diagram-angle-label { fill: var(--diagram-gold); font-size: 18px; }
+  :global(html.dark) .parallax-definition { --diagram-ink: #c8c6af; --diagram-gold: #d2b36c; border-color: #c7a56642; }
+  :global(html.dark) .definition-visual::before { filter: invert(1) grayscale(1); opacity: 0.17; }
+  @media (max-width: 600px) {
+    .parallax-definition { display: block; padding: 20px 0; margin-bottom: 26px; }
+    .definition-copy dt { align-items: center; min-height: 86px; padding-right: 112px; gap: 8px; }
+    .definition-copy dfn { font-size: 30px; }
+    .definition-part { font-size: 15px; }
+    .definition-copy dd { font-size: 19px; margin-top: 8px; }
+    .definition-visual { position: absolute; top: 16px; right: 0; width: 100px; }
+    .diagram-fine { stroke-width: 1.4; }
+    .diagram-rays { stroke-width: 2; }
+    .diagram-angle, .diagram-points, .diagram-object { stroke-width: 1.8; }
+    .diagram-hatching { stroke-width: 1; }
+    .diagram-labels { font-size: 24px; }
+  }
+</style>

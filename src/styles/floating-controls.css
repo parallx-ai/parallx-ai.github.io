@@ -1,0 +1,59 @@
+:root {
+  --floating-control-size: 2.5rem;
+  --floating-control-gap: 0.625rem;
+  --floating-control-inset: 1.15rem;
+  --floating-control-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* Small paper-and-gold discs echo the site's spheres and portrait rings. */
+.floating-control {
+  position: fixed;
+  right: var(--floating-control-inset);
+  bottom: var(--floating-control-bottom);
+  z-index: 59;
+  align-items: center;
+  justify-content: center;
+  width: var(--floating-control-size);
+  height: var(--floating-control-size);
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-gold-deep) 42%, var(--color-cream));
+  border-radius: 50%;
+  color: var(--color-gold-deep);
+  background:
+    radial-gradient(ellipse at 28% 18%, color-mix(in srgb, var(--color-gold-soft) 12%, transparent), transparent 72%),
+    var(--color-cream);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--color-gold-soft) 7%, transparent),
+    0 3px 12px rgb(0 0 0 / 8%);
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+/* Preserve a comfortable touch target around the smaller visible disc. */
+.floating-control::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+}
+
+.floating-control svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5;
+}
+
+.floating-control:hover,
+.floating-control[aria-expanded='true'] {
+  border-color: var(--color-gold-deep);
+  background-color: color-mix(in srgb, var(--color-gold) 9%, var(--color-cream));
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--color-gold-soft) 12%, transparent),
+    0 3px 12px rgb(0 0 0 / 10%);
+}
+
+@media (max-width: 520px) {
+  :root {
+    --floating-control-inset: 1rem;
+  }
+}

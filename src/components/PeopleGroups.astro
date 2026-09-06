@@ -15,23 +15,29 @@ const advisors = people.filter((person) => person.group === 'advisors');
 
 <div class={className}>
   <section id="team" class="scroll-mt-[92px]" aria-labelledby="our-team-heading">
-    <div class="mb-7 border-b border-rule pb-3">
-      <Heading id="our-team-heading" class="font-display text-[clamp(20px,3vw,36px)] font-semibold leading-[1.05] tracking-[-0.035em]">Our Team</Heading>
+    <div class="people-heading">
+      <Heading id="our-team-heading" class="font-display text-[clamp(30px,3.5vw,46px)] font-semibold leading-[1.05] tracking-[-0.035em]">Our Team</Heading>
     </div>
-    <div data-randomized-founders class="mx-auto grid max-w-[600px] grid-cols-2 gap-x-10 gap-y-12 max-xs:gap-x-5">
+    <div data-randomized-founders class="mx-auto grid max-w-[680px] grid-cols-2 gap-x-16 gap-y-12 max-xs:gap-x-6">
       {team.map((person) => <PersonCard person={person} variant="team" headingLevel={personHeadingLevel} />)}
     </div>
   </section>
 
-  <section id="advisors" class="mt-16 scroll-mt-[92px]" aria-labelledby="advisors-heading">
-    <div class="mb-7 border-b border-rule pb-3">
-      <Heading id="advisors-heading" class="font-display text-[clamp(20px,3vw,36px)] font-semibold leading-[1.05] tracking-[-0.035em]">Advisors</Heading>
+  <section id="advisors" class="mt-24 scroll-mt-[92px] max-xs:mt-16" aria-labelledby="advisors-heading">
+    <div class="people-heading">
+      <Heading id="advisors-heading" class="font-display text-[clamp(30px,3.5vw,46px)] font-semibold leading-[1.05] tracking-[-0.035em]">Advisors</Heading>
     </div>
-    <div class="mx-auto grid max-w-[920px] grid-cols-4 gap-x-8 gap-y-12 max-nav:max-w-[600px] max-nav:grid-cols-2 max-xs:gap-x-5">
+    <div class="mx-auto grid max-w-[1040px] grid-cols-4 gap-x-10 gap-y-14 max-nav:max-w-[680px] max-nav:grid-cols-2 max-xs:gap-x-6">
       {advisors.map((person) => <PersonCard person={person} variant="advisor" headingLevel={personHeadingLevel} />)}
     </div>
   </section>
 </div>
+
+<style>
+  .people-heading { display: flex; flex-direction: column; align-items: center; gap: 22px; margin-bottom: 48px; text-align: center; }
+  .people-heading::after { content: ''; width: 72px; border-top: 1px dotted #b28c44; }
+  @media (max-width: 600px) { .people-heading { margin-bottom: 38px; } }
+</style>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-randomized-founders]').forEach((teamGrid) => {

@@ -3,6 +3,7 @@ import Base from './Base.astro';
 import Container from '../components/Container.astro';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import ProseTableOfContents from '../components/ProseTableOfContents.astro';
 
 interface ArticleMeta {
   title: string;
@@ -21,7 +22,8 @@ const { title, description, eyebrow, meta, screenLabel } = fm;
 ---
 <Base title={title} description={description} screenLabel={screenLabel}>
   <SiteNav />
-  <article>
+  <article class="relative" data-article-content>
+    <ProseTableOfContents />
     <header class="border-b border-rule-soft pt-20 pb-14 max-nav:pt-12 max-nav:pb-10">
       <Container>
         {/* Same fixed reading measure as the prose body so the header
@@ -35,7 +37,7 @@ const { title, description, eyebrow, meta, screenLabel } = fm;
             )
           }
           <h1
-            class="text-balance font-display text-[clamp(44px,5.4vw,76px)] font-semibold leading-[1.02] tracking-[-0.045em]"
+            class="text-balance font-display text-[clamp(38px,5.4vw,70px)] font-semibold leading-[1.02] tracking-[-0.045em]"
           >
             {title}
           </h1>

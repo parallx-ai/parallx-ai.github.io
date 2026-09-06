@@ -1,0 +1,116 @@
+<svg class="hero-orbits" viewBox="0 0 1000 700" preserveAspectRatio="none" fill="none" aria-hidden="true">
+  <defs>
+    <filter id="orbit-reading-feather" x="-25%" y="-40%" width="150%" height="180%">
+      <feGaussianBlur stdDeviation="20" />
+    </filter>
+    <mask id="orbit-reading-mask" maskUnits="userSpaceOnUse">
+      <rect width="100%" height="100%" fill="white" />
+      <rect class="orbit-reading-area" x="200" y="235" width="600" height="250" rx="35" fill="black" filter="url(#orbit-reading-feather)" />
+    </mask>
+  </defs>
+  <g mask="url(#orbit-reading-mask)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path class="orbit-primary" d="M120 175C250 10 700 30 920 259S800 650 570 595S-30 550 60 441S30 250 120 175Z" />
+    <path class="orbit-secondary" d="M120 175C400-50 960 60 860 497S180 700 120 175Z" />
+    <path class="orbit-connections" d="M120 175L270 553L860 497L730 126L380 91" />
+  </g>
+</svg>
+
+<style>
+  .hero-orbits {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    color: #b3852c;
+  }
+  .hero-orbits path { vector-effect: non-scaling-stroke; }
+  .orbit-primary { stroke-width: 1.7; stroke-dasharray: 0.5 3.5; opacity: 0.88; }
+  .orbit-secondary { stroke-width: 1.3; stroke-dasharray: 0.5 3; opacity: 0.72; }
+  .orbit-connections { stroke-width: 1.25; opacity: 0.72; }
+  :global(html.dark) .hero-orbits { color: #e3be72; opacity: 0.95; }
+  @media (max-width: 600px) {
+    .orbit-secondary { display: none; }
+    .orbit-primary { opacity: 0.8; }
+    .orbit-connections { opacity: 0.62; }
+  }
+</style>
+
+<script>
+  type Point = { x: number; y: number };
+  const hero = document.querySelector<HTMLElement>('#hero');
+  const svg = hero?.querySelector<SVGSVGElement>('.hero-orbits');
+  if (hero && svg) {
+    const spheres = [...hero.querySelectorAll<HTMLElement>('.hero-sphere')];
+    const primary = svg.querySelector('.orbit-primary')!;
+    const secondary = svg.querySelector('.orbit-secondary')!;
+    const connections = svg.querySelector('.orbit-connections')!;
+    const readingArea = svg.querySelector('.orbit-reading-area')!;
+    const text = [...hero.querySelectorAll<HTMLElement>('.hero-content h1, .hero-content p')];
+    let frame = 0;
+    let lastDraw = -Infinity;
+    const point = ({ x, y }: Point) => `${x.toFixed(1)},${y.toFixed(1)}`;
+
+    // A closed Catmull–Rom curve passes through the moving sphere centers.
+    function orbit(points: Point[], tension: number) {
+      if (points.length < 3) return '';
+      return `M${point(points[0])}` + points.map((p1, i) => {
+        const p0 = points[(i - 1 + points.length) % points.length];
+        const p2 = points[(i + 1) % points.length];
+        const p3 = points[(i + 2) % points.length];
+        const c1 = { x: p1.x + (p2.x - p0.x) * tension / 6, y: p1.y + (p2.y - p0.y) * tension / 6 };
+        const c2 = { x: p2.x - (p3.x - p1.x) * tension / 6, y: p2.y - (p3.y - p1.y) * tension / 6 };
+        return `C${point(c1)} ${point(c2)} ${point(p2)}`;
+      }).join('') + 'Z';
+    }
+
+    function draw() {
+      if (!hero || !svg) return;
+      const bounds = hero.getBoundingClientRect();
+      const points = spheres.map((sphere) => {
+        const rect = sphere.getBoundingClientRect();
+        return rect.width ? { x: rect.x + rect.width / 2 - bounds.x, y: rect.y + rect.height / 2 - bounds.y } : null;
+      });
+      const visible = points.filter((p): p is Point => p !== null);
+      primary.setAttribute('d', orbit(visible, 1.15));
+      secondary.setAttribute('d', orbit(points.filter((p, i): p is Point => p !== null && i % 2 === 0), 1.85));
+      connections.setAttribute('d', [[0, 6], [6, 4], [4, 2], [2, 1]].map(([a, b]) => points[a] && points[b] ? `M${point(points[a]!)}L${point(points[b]!)}` : '').join(''));
+    }
+
+    function resize() {
+      if (!hero || !svg) return;
+      const bounds = hero.getBoundingClientRect();
+      svg.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+      const boxes = text.map((element) => element.getBoundingClientRect());
+      const left = Math.min(...boxes.map((box) => box.left)) - bounds.left - 18;
+      const top = Math.min(...boxes.map((box) => box.top)) - bounds.top - 18;
+      const right = Math.max(...boxes.map((box) => box.right)) - bounds.left + 18;
+      const bottom = Math.max(...boxes.map((box) => box.bottom)) - bounds.top + 18;
+      Object.entries({ x: left, y: top, width: right - left, height: bottom - top }).forEach(([key, value]) => readingArea.setAttribute(key, String(value)));
+      draw();
+    }
+
+    function tick(now: number) {
+      frame = 0;
+      // The slow drift needs only 30 geometry updates per second.
+      if (now - lastDraw >= 1000 / 30) {
+        draw();
+        lastDraw = now;
+      }
+      if (hero?.dataset.running === 'true') frame = requestAnimationFrame(tick);
+    }
+
+    function syncMotion() {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      draw();
+      if (hero?.dataset.running === 'true') frame = requestAnimationFrame(tick);
+    }
+    new ResizeObserver(resize).observe(hero);
+    new MutationObserver(syncMotion).observe(hero, { attributes: true, attributeFilter: ['data-running'] });
+    document.fonts.ready.then(resize);
+    resize();
+    syncMotion();
+  }
+</script>

@@ -1,0 +1,467 @@
+<!-- Adapted from the reading menu in gsarti/gsarti.github.io. -->
+
+<div class="prose-toc-rail">
+<nav id="prose-toc-panel" class="prose-toc" aria-label="Table of contents" data-prose-toc hidden>
+  <ol data-prose-toc-list></ol>
+  <div class="prose-toc-actions">
+    <button type="button" data-prose-back-top>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6" /></svg>
+      Back to top
+    </button>
+  </div>
+</nav>
+</div>
+
+<button
+  class="prose-toc-toggle floating-control"
+  type="button"
+  aria-label="Open reading menu"
+  aria-controls="prose-toc-panel"
+  aria-expanded="false"
+  title="Reading menu"
+  data-prose-toc-toggle
+  hidden
+>
+  <span class="prose-toc-toggle__open"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v18M9 8h6v13" /><circle cx="9" cy="3" r="1.25" /><circle cx="15" cy="12" r="1.25" /><circle cx="15" cy="18" r="1.25" /></svg></span>
+  <span class="prose-toc-toggle__close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></span>
+</button>
+
+<style is:global>
+  .prose-toc-rail {
+    display: contents;
+  }
+
+  .prose-toc,
+  .prose-toc-toggle {
+    --toc-rule: color-mix(in srgb, var(--color-gold-deep) 45%, var(--color-rule));
+  }
+
+  [data-article-content] :is(h1, h2, h3) {
+    scroll-margin-top: 6.5rem;
+  }
+
+  .prose-toc,
+  .prose-toc-toggle {
+    display: none;
+  }
+
+  .prose-toc-actions {
+    display: none;
+  }
+
+  .prose-toc ol {
+    --toc-indent: 0.85rem;
+
+    position: relative;
+    margin: 0;
+    padding: 0.15rem 0 0.15rem var(--toc-indent);
+    border-left: 1px solid var(--toc-rule);
+    list-style: none;
+  }
+
+  .prose-toc > ol {
+    padding-bottom: 0;
+  }
+
+  .prose-toc > ol::before {
+    content: '';
+    position: absolute;
+    top: -0.7rem;
+    left: -1px;
+    height: 0.7rem;
+    border-left: 1px solid var(--toc-rule);
+  }
+
+  .prose-toc li {
+    position: relative;
+  }
+
+  .prose-toc li + li {
+    margin-top: 0.25rem;
+  }
+
+  .prose-toc li[data-depth='1'] + li {
+    margin-top: 0.45rem;
+  }
+
+  .prose-toc li > ol {
+    --toc-connector-length: 0.85rem;
+
+    margin-top: 0.3rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .prose-toc li > ol:has(> li:last-child > ol:not(.prose-toc__branch--merges)) {
+    padding-bottom: 0;
+  }
+
+  .prose-toc li > ol::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: calc(-1 * var(--toc-connector-length) - 1px);
+    width: calc(var(--toc-connector-length) + 1px);
+    border-top: 1px solid var(--toc-rule);
+  }
+
+  .prose-toc ol::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -0.5px;
+    z-index: 1;
+    width: 6px;
+    height: 6px;
+    background:
+      linear-gradient(45deg, transparent 44%, var(--color-gold-deep) 44% 56%, transparent 56%),
+      linear-gradient(-45deg, transparent 44%, var(--color-gold-deep) 44% 56%, transparent 56%);
+    transform: translate(-50%, 50%);
+  }
+
+  .prose-toc ol.prose-toc__branch--merges::after {
+    left: calc(-1 * var(--toc-connector-length) - 1px);
+    width: calc(var(--toc-connector-length) + 1px);
+    height: 1px;
+    background: var(--toc-rule);
+    transform: none;
+  }
+
+  .prose-toc a {
+    position: relative;
+    display: block;
+    color: var(--color-ink-2);
+    font: 500 0.76rem/1.35 var(--font-body);
+    text-wrap: pretty;
+    transition: color 140ms ease;
+  }
+
+  .prose-toc li[data-depth='1'] > a {
+    color: var(--color-ink);
+    font-size: 0.82rem;
+    font-weight: 650;
+  }
+
+  .prose-toc li[data-depth='2'] > a {
+    font-size: 0.75rem;
+    font-weight: 540;
+  }
+
+  .prose-toc li[data-depth='3'] > a {
+    color: var(--color-ink-2);
+    font-size: 0.69rem;
+    font-weight: 500;
+  }
+
+  .prose-toc a::before {
+    content: '';
+    position: absolute;
+    top: 0.675em;
+    left: calc(-1 * var(--toc-indent) - 0.5px);
+    z-index: 1;
+    width: 6px;
+    height: 6px;
+    border: 1px solid var(--toc-rule);
+    border-radius: 50%;
+    background: var(--color-cream);
+    transform: translate(-50%, -50%);
+    transition: border-color 140ms ease, background 140ms ease;
+  }
+
+  .prose-toc ol:not(.prose-toc__branch--merges)
+    > li:last-child:not(:has(> ol))
+    > a::before {
+    top: auto;
+    bottom: 0.675em;
+    transform: translate(-50%, 50%);
+  }
+
+  .prose-toc li[data-depth='1'] > a::before {
+    border-color: var(--color-ink-2);
+    background: var(--color-ink-2);
+  }
+
+  .prose-toc li > a:hover {
+    color: var(--color-gold-deep);
+    text-decoration: none;
+  }
+
+  .prose-toc li > a:hover::before,
+  .prose-toc li > a[aria-current='location']::before {
+    border-color: var(--color-gold-deep);
+    background: var(--color-gold-deep);
+  }
+
+  .prose-toc li > a[aria-current='location'] {
+    color: var(--color-gold-deep);
+    font-weight: 650;
+  }
+
+  @media (max-width: calc(80rem - 0.02px)) {
+    .prose-toc.is-open:not([hidden]) {
+      position: fixed;
+      right: 1.15rem;
+      bottom: calc(var(--floating-control-bottom) + var(--floating-control-size) + var(--floating-control-gap));
+      z-index: 58;
+      display: block;
+      width: min(22rem, calc(100vw - 2.3rem));
+      max-height: min(70dvh, 36rem);
+      padding: 0.8rem 1rem 0.9rem;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      color: var(--color-ink-2);
+      border: 1px solid var(--toc-rule);
+      background: color-mix(in srgb, var(--color-cream) 94%, transparent);
+      box-shadow: 0 0.6rem 2rem rgb(0 0 0 / 12%);
+      backdrop-filter: blur(14px);
+      scrollbar-width: thin;
+    }
+
+    .prose-toc-toggle:not([hidden]) {
+      display: inline-flex;
+    }
+
+    .prose-toc.is-open a {
+      display: flex;
+      align-items: center;
+      min-height: 2.25rem;
+    }
+
+    .prose-toc.is-open a::before,
+    .prose-toc.is-open ol:not(.prose-toc__branch--merges)
+      > li:last-child:not(:has(> ol))
+      > a::before {
+      top: 50%;
+      bottom: auto;
+      transform: translate(-50%, -50%);
+    }
+
+    .prose-toc-toggle__open,
+    .prose-toc-toggle__close {
+      display: inline-flex;
+    }
+
+    .prose-toc-toggle__close,
+    .prose-toc-toggle[aria-expanded='true'] .prose-toc-toggle__open {
+      display: none;
+    }
+
+    .prose-toc-toggle[aria-expanded='true'] .prose-toc-toggle__close {
+      display: inline-flex;
+    }
+
+    .prose-toc-actions {
+      display: block;
+      margin-top: 0.65rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--color-rule-soft);
+    }
+
+    .prose-toc-actions button {
+      display: inline-flex;
+      width: 100%;
+      min-height: 2.25rem;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--toc-rule);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--color-gold) 5%, var(--color-cream));
+      color: var(--color-gold-deep);
+      font: 620 0.82rem/1.25 var(--font-body);
+      cursor: pointer;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .prose-toc.is-open:not([hidden]) {
+      right: 0.75rem;
+      left: 0.75rem;
+      width: auto;
+      max-height: min(62dvh, 32rem);
+      border-radius: 0.85rem 0.85rem 0 0;
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+  }
+
+  @media (min-width: 80rem) {
+    /* Keep the circuit in the reading gutter and let it stop at the footer. */
+    .prose-toc-rail {
+      position: absolute;
+      inset-block: 2.75rem 2rem;
+      left: max(0px, calc((100% - var(--prose-measure)) / 2 - 18rem));
+      display: block;
+      width: calc((100% - var(--prose-measure)) / 2);
+      max-width: 18rem;
+      pointer-events: none;
+    }
+
+    .prose-toc:not([hidden]) {
+      position: sticky;
+      top: 7rem;
+      display: block;
+      max-height: calc(100dvh - 8.5rem);
+      margin-right: 1.25rem;
+      padding: 0.8rem 1rem 1rem 2rem;
+      overflow-y: auto;
+      color: var(--color-ink-2);
+      background: var(--color-cream);
+      border-right: 1px solid var(--color-rule-soft);
+      scrollbar-width: thin;
+      pointer-events: auto;
+    }
+  }
+
+</style>
+
+<script>
+  const toc = document.querySelector<HTMLElement>('[data-prose-toc]');
+  const tocList = toc?.querySelector<HTMLOListElement>('[data-prose-toc-list]');
+  const tocToggle = document.querySelector<HTMLButtonElement>('[data-prose-toc-toggle]');
+  const proseBackToTop = toc?.querySelector<HTMLButtonElement>('[data-prose-back-top]');
+  const prose = document.querySelector<HTMLElement>('[data-article-content]');
+
+  const setMobileTocOpen = (open: boolean) => {
+    if (!toc || !tocToggle) return;
+    toc.classList.toggle('is-open', open);
+    tocToggle.setAttribute('aria-expanded', String(open));
+    tocToggle.setAttribute('aria-label', open ? 'Close reading menu' : 'Open reading menu');
+  };
+
+  if (toc && tocList && prose) {
+    const headings = Array.from(
+      prose.querySelectorAll<HTMLElement>('h1, h2, h3')
+    ).filter((heading) => !heading.closest('section[data-footnotes], [data-toc-ignore]') && heading.textContent?.trim());
+
+    const usedIds = new Set(
+      Array.from(document.querySelectorAll<HTMLElement>('[id]'))
+        .map((element) => element.id)
+        .filter(Boolean)
+    );
+
+    const makeHeadingId = (heading: HTMLElement) => {
+      if (heading.id) return heading.id;
+
+      const base = heading.textContent
+        ?.trim()
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') || 'section';
+
+      let id = base;
+      let suffix = 2;
+      while (usedIds.has(id)) id = `${base}-${suffix++}`;
+      heading.id = id;
+      usedIds.add(id);
+      return id;
+    };
+
+    if (headings.length > 1) {
+      const links: HTMLAnchorElement[] = [];
+      const firstDepth = Number(headings[0].tagName.slice(1));
+      const listStack: Array<{ depth: number; list: HTMLOListElement }> = [
+        { depth: firstDepth, list: tocList },
+      ];
+      let previousDepth = firstDepth;
+      let previousItem: HTMLLIElement | null = null;
+
+      headings.forEach((heading) => {
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        const id = makeHeadingId(heading);
+        const depth = Number(heading.tagName.slice(1));
+
+        if (previousItem && depth > previousDepth) {
+          const nestedList = document.createElement('ol');
+          previousItem.append(nestedList);
+          listStack.push({ depth, list: nestedList });
+        } else if (depth < previousDepth) {
+          while (listStack.length > 1 && listStack.at(-1)!.depth > depth) {
+            listStack.pop();
+          }
+        }
+
+        item.dataset.depth = String(depth);
+        link.href = `#${id}`;
+        link.textContent = heading.textContent?.trim() || id;
+        item.append(link);
+        listStack.at(-1)!.list.append(item);
+        links.push(link);
+        previousDepth = depth;
+        previousItem = item;
+      });
+
+      tocList.querySelectorAll<HTMLOListElement>('ol').forEach((list) => {
+        const owner = list.parentElement;
+        if (owner?.nextElementSibling) list.classList.add('prose-toc__branch--merges');
+      });
+
+      let scrollFrame = 0;
+      const updateCurrentSection = () => {
+        const headerOffset = 112;
+        const current = [...headings]
+          .reverse()
+          .find((heading) => heading.getBoundingClientRect().top <= headerOffset) ?? headings[0];
+
+        links.forEach((link, index) => {
+          if (headings[index] === current) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+      };
+
+      const scheduleCurrentSection = () => {
+        cancelAnimationFrame(scrollFrame);
+        scrollFrame = requestAnimationFrame(updateCurrentSection);
+      };
+
+      toc.hidden = false;
+      if (tocToggle) tocToggle.hidden = false;
+      updateCurrentSection();
+      window.addEventListener('scroll', scheduleCurrentSection, { passive: true });
+      window.addEventListener('resize', scheduleCurrentSection, { passive: true });
+      window.addEventListener('load', scheduleCurrentSection, { once: true });
+      window.addEventListener('pageshow', scheduleCurrentSection);
+      document.fonts?.ready.then(scheduleCurrentSection);
+
+      tocToggle?.addEventListener('click', () => {
+        const open = tocToggle.getAttribute('aria-expanded') !== 'true';
+        setMobileTocOpen(open);
+        if (open) (links.find((link) => link.hasAttribute('aria-current')) ?? links[0]).focus();
+      });
+
+      toc.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element)) return;
+        const link = event.target.closest('a');
+        const index = links.findIndex((item) => item === link);
+        if (index < 0) return;
+        setMobileTocOpen(false);
+        headings[index].tabIndex = -1;
+        headings[index].focus({ preventScroll: true });
+      });
+
+      proseBackToTop?.addEventListener('click', () => {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        setMobileTocOpen(false);
+        window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+        headings[0].tabIndex = -1;
+        headings[0].focus({ preventScroll: true });
+      });
+
+      document.addEventListener('click', (event) => {
+        if (tocToggle?.getAttribute('aria-expanded') !== 'true' || !(event.target instanceof Node)) return;
+        if (!toc.contains(event.target) && !tocToggle.contains(event.target)) setMobileTocOpen(false);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || tocToggle?.getAttribute('aria-expanded') !== 'true') return;
+        setMobileTocOpen(false);
+        tocToggle.focus();
+      });
+
+      window.matchMedia('(min-width: 80rem)').addEventListener('change', () => setMobileTocOpen(false));
+    }
+  }
+</script>
