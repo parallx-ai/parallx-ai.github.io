@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2940" height="1508" viewBox="0 0 2940 1508">
+  <defs>
+    <linearGradient id="incoming-gold" x1="2940" y1="400" x2="2516" y2="1095" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f1c86c" stop-opacity="0.94" />
+      <stop offset="0.48" stop-color="#e7b958" stop-opacity="0.92" />
+      <stop offset="1" stop-color="#c9932c" stop-opacity="0.98" />
+    </linearGradient>
+    <linearGradient id="outgoing-gold" x1="2516" y1="1095" x2="2940" y2="1430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c9932c" stop-opacity="0.98" />
+      <stop offset="0.52" stop-color="#e5b451" stop-opacity="0.94" />
+      <stop offset="1" stop-color="#f2c86e" stop-opacity="0.96" />
+    </linearGradient>
+    <filter id="ray-haze" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7" />
+    </filter>
+    <filter id="core-glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="9" />
+    </filter>
+  </defs>
+
+  <!-- Every beam uses the circuitry core at (2516, 1095) as its sole tip. -->
+  <g fill="#e8b652" opacity="0.2" filter="url(#ray-haze)">
+    <path d="M2516 1095 2940 352 2940 438Z" />
+    <path d="M2516 1095 2775 1508 2851 1508Z" />
+    <path d="M2516 1095 2940 1348 2940 1424Z" />
+  </g>
+
+  <path d="M2516 1095 2940 352 2940 438Z" fill="url(#incoming-gold)" />
+  <path d="M2516 1095 2775 1508 2851 1508Z" fill="url(#outgoing-gold)" />
+  <path d="M2516 1095 2940 1348 2940 1424Z" fill="url(#outgoing-gold)" />
+
+  <circle cx="2516" cy="1095" r="28" fill="#f4cd72" opacity="0.32" filter="url(#core-glow)" />
+  <circle cx="2516" cy="1095" r="7" fill="#fff1b7" opacity="0.88" />
+</svg>
