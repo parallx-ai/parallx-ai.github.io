@@ -1,8 +1,14 @@
 :root {
   --floating-control-size: 2.5rem;
+  --floating-control-icon-size: 1.125rem;
   --floating-control-gap: 0.625rem;
   --floating-control-inset: 1.15rem;
   --floating-control-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+body:has([data-article-content]) {
+  --floating-control-size: 2.75rem;
+  --floating-control-icon-size: 1.25rem;
 }
 
 /* Small paper-and-gold discs echo the site's spheres and portrait rings. */
@@ -38,8 +44,8 @@
 }
 
 .floating-control svg {
-  width: 18px;
-  height: 18px;
+  width: var(--floating-control-icon-size);
+  height: var(--floating-control-icon-size);
   stroke-width: 1.5;
 }
 

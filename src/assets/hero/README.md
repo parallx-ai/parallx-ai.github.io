@@ -4,7 +4,7 @@
 
 The sphere shells use SVG pigment grain and feathered masks. `HeroOrbits.astro` draws gold orbital paths and connections that follow the floating spheres, with a soft mask behind the hero text. These effects are rendered in code and do not change the background image.
 
-`HeroRays.astro` and `src/scripts/hero-spheres.ts` coordinate the interactive reveal: a golden ray travels from the hero's top edge to the selected sphere, reveals its circuitry at impact, and splits toward the hero's lower edge. Ray geometry is measured on activation and resize; the Web Animations API drives travel without per-frame layout reads. Hover and keyboard focus reveal temporarily, clicks pin a sphere, and Escape dismisses the reveal. Reduced motion reveals the circuitry immediately without a ray.
+`HeroRays.astro` and `src/scripts/hero-spheres.ts` coordinate the interactive reveal: a filled golden beam narrows from a wide base at the hero's top edge to a point at the selected sphere, reveals its circuitry at impact, and forks into two widening beams toward the lower edge. Animated SVG masks reveal the triangular beams in sequence, then the beams fade together. Geometry is measured on activation and resize; the Web Animations API drives the masks without per-frame layout reads. Hover and keyboard focus reveal temporarily, clicks pin a sphere, and Escape dismisses the reveal. Reduced motion reveals the circuitry immediately without a ray.
 
 Generation prompt:
 

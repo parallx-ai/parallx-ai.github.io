@@ -1,9 +1,10 @@
-// Geometry is fixed while a sphere is selected. Let the browser animate the
-// light along those paths without measuring or rebuilding SVG on every frame.
+// Geometry is fixed while a sphere is selected. Let the browser reveal the
+// tapered beams through masks without per-frame layout reads.
 const IMPACT_MS = 420;
 const BRANCH_MS = 620;
-const TRAIL = 0.45;
-const END_MS = IMPACT_MS + BRANCH_MS * (1 + TRAIL);
+const HOLD_MS = 140;
+const FADE_MS = 280;
+const END_MS = IMPACT_MS + BRANCH_MS + HOLD_MS + FADE_MS;
 
 export function initSphereInteractions(hero: HTMLElement, reducedMotion: MediaQueryList) {
   const svg = hero.querySelector<SVGSVGElement>('.hero-rays')!;
@@ -13,6 +14,8 @@ export function initSphereInteractions(hero: HTMLElement, reducedMotion: MediaQu
       button, ray,
       incoming: ray.querySelector<SVGPathElement>('.ray-incoming')!,
       branches: [...ray.querySelectorAll<SVGPathElement>('.ray-branch')],
+      incomingTravel: svg.querySelector<SVGPathElement>(`.ray-incoming-travel[data-ray-travel="${index}"]`)!,
+      branchTravel: [...svg.querySelectorAll<SVGPathElement>(`.ray-branch-travel[data-ray-travel="${index}"]`)],
       impact: ray.querySelector<SVGCircleElement>('.ray-impact')!,
       hovered: false,
       focused: false,
@@ -32,6 +35,18 @@ export function initSphereInteractions(hero: HTMLElement, reducedMotion: MediaQu
     state.ray.setAttribute('opacity', '0');
   }
 
+  function setBeam(shape: SVGPathElement, travel: SVGPathElement, tip: [number, number], base: [number, number], width: number, incoming = false) {
+    const dx = base[0] - tip[0];
+    const dy = base[1] - tip[1];
+    const length = Math.hypot(dx, dy);
+    const nx = -dy / length * width / 2;
+    const ny = dx / length * width / 2;
+    shape.setAttribute('d', `M${tip[0]},${tip[1]} L${base[0] + nx},${base[1] + ny} L${base[0] - nx},${base[1] - ny} Z`);
+    const [from, to] = incoming ? [base, tip] : [tip, base];
+    travel.setAttribute('d', `M${from[0]},${from[1]} L${to[0]},${to[1]}`);
+    travel.setAttribute('stroke-width', String(width + 2));
+  }
+
   function geometry(state: State) {
     const bounds = hero.getBoundingClientRect();
     const rect = state.button.getBoundingClientRect();
@@ -41,9 +56,13 @@ export function initSphereInteractions(hero: HTMLElement, reducedMotion: MediaQu
     const y = rect.top + rect.height / 2 - bounds.top;
     const sourceX = x + (bounds.width / 2 - x) * 0.3;
     const spread = Math.max(rect.width * 0.7, bounds.width * 0.14);
-    state.incoming.setAttribute('d', `M${sourceX},0 L${x},${y}`);
+    const incomingWidth = Math.max(18, Math.min(42, bounds.width * 0.025));
+    const branchWidth = Math.max(18, Math.min(56, bounds.width * 0.036));
+    const tip: [number, number] = [x, y];
+    setBeam(state.incoming, state.incomingTravel, tip, [sourceX, -24], incomingWidth, true);
     state.branches.forEach((branch, index) => {
-      branch.setAttribute('d', `M${x},${y} L${x + (index ? 1 : -1) * spread},${bounds.height + 12}`);
+      const base: [number, number] = [x + (index ? 1 : -1) * spread, bounds.height + 24];
+      setBeam(branch, state.branchTravel[index], tip, base, branchWidth * (index ? 1 : 0.65));
     });
     state.impact.setAttribute('cx', String(x));
     state.impact.setAttribute('cy', String(y));
@@ -56,15 +75,14 @@ export function initSphereInteractions(hero: HTMLElement, reducedMotion: MediaQu
       return;
     }
     const travel: Keyframe[] = [
-      { strokeDashoffset: String(TRAIL), opacity: 0 },
-      { strokeDashoffset: String(TRAIL - 0.01), opacity: 1, offset: 0.01 / (1 + TRAIL) },
-      { strokeDashoffset: String(TRAIL - 1), opacity: 1, offset: 1 / (1 + TRAIL) },
-      { strokeDashoffset: '-1', opacity: 0 },
+      { strokeDashoffset: '1' },
+      { strokeDashoffset: '0' },
     ];
     state.ray.setAttribute('opacity', '1');
     state.animations = [
-      state.incoming.animate(travel, { duration: IMPACT_MS * (1 + TRAIL), fill: 'both' }),
-      ...state.branches.map((branch) => branch.animate(travel, { duration: BRANCH_MS * (1 + TRAIL), delay: IMPACT_MS, fill: 'both' })),
+      state.incomingTravel.animate(travel, { duration: IMPACT_MS, fill: 'both' }),
+      ...state.branchTravel.map((branch) => branch.animate(travel, { duration: BRANCH_MS, delay: IMPACT_MS, fill: 'both' })),
+      state.ray.animate([{ opacity: 1 }, { opacity: 0 }], { duration: FADE_MS, delay: IMPACT_MS + BRANCH_MS + HOLD_MS, fill: 'both' }),
       state.impact.animate([{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 0 }], { duration: 300, delay: IMPACT_MS, fill: 'both' }),
     ];
     state.impactTimer = setTimeout(() => {

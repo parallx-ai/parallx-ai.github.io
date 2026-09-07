@@ -1,5 +1,26 @@
 ---
 import watercolor from '../assets/hero/watercolor.webp?url';
+
+const object = { x: 150, y: 120, radius: 19 };
+const viewpoints = [{ x: 56, y: 210 }, { x: 244, y: 210 }];
+const visibleSurfaces = viewpoints.map((viewpoint) => {
+  const dx = viewpoint.x - object.x;
+  const dy = viewpoint.y - object.y;
+  // The tangent points lie on a chord perpendicular to the sightline.
+  // Only the surface on the observer's side of that chord is visible.
+  const limb = object.radius ** 2 / Math.hypot(dx, dy);
+  const halfChord = Math.sqrt(object.radius ** 2 - limb ** 2);
+  const hatchLines = Array.from({ length: 9 }, (_, index) => {
+    const offset = (index - 4) * 3.8;
+    const edge = Math.sqrt(object.radius ** 2 - offset ** 2);
+    return `M${limb} ${offset}H${edge}`;
+  }).join('');
+  return {
+    transform: `translate(${object.x} ${object.y}) rotate(${Math.atan2(dy, dx) * 180 / Math.PI})`,
+    boundary: `M${limb} ${-halfChord}V${halfChord}`,
+    hatchLines,
+  };
+});
 ---
 
 <aside class="parallax-definition" aria-label="Definition of parallax" style={`--definition-watercolor: url('${watercolor}')`}>
@@ -10,7 +31,7 @@ import watercolor from '../assets/hero/watercolor.webp?url';
   <div class="definition-visual" aria-hidden="true">
     <svg viewBox="0 0 300 260" fill="none">
       <defs>
-        <clipPath id="definition-object"><circle cx="150" cy="120" r="18.5" /></clipPath>
+        <clipPath id="definition-object"><circle cx={object.x} cy={object.y} r={object.radius} /></clipPath>
       </defs>
 
       {/* Slightly bowed strokes and offset impressions suggest a pen-drawn
@@ -41,10 +62,14 @@ import watercolor from '../assets/hero/watercolor.webp?url';
         <circle cx="244" cy="210" r="4" />
       </g>
       <g class="diagram-object">
-        <path d="M150 101C160.3 100.6 169.5 110.2 169 120C169.2 130.6 160 139.4 150 139C139.5 139.2 130.7 130.8 131 120C130.8 109.4 139.9 101.3 150 101Z" />
+        <circle cx={object.x} cy={object.y} r={object.radius} />
         <g class="diagram-hatching" clip-path="url(#definition-object)">
-          <path d="M139 100Q163 107 170 127M145 100Q166 108 171 121M133 104Q159 110 169 132M129 108Q155 113 166 138M128 113Q151 117 160 141M129 119Q147 121 152 141M131 125Q140 126 144 141" />
-          <path d="m162 100-4 41m8-38-3 36m-8-37-2 37m-4-7-1 8M137 134l30-13m-24 18 26-11m-17 13 17-6" opacity="0.55" />
+          {visibleSurfaces.map((surface) => (
+            <g transform={surface.transform}>
+              <path d={surface.boundary} opacity="0.35" />
+              <path d={surface.hatchLines} />
+            </g>
+          ))}
         </g>
       </g>
       <g class="diagram-labels">

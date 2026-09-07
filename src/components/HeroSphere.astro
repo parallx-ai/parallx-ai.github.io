@@ -8,6 +8,9 @@ interface Props {
   delay: number;
 }
 const { index, x, y, size, duration, delay } = Astro.props;
+const coreRing = { radius: 16, strokeWidth: 0.7 };
+const nodeStrokeWidth = 1.2;
+const branchNodeRadius = 1.2;
 let seed = 8191 + index * 137;
 const random = () => {
   seed = (seed * 16807) % 2147483647;
@@ -32,6 +35,7 @@ const circuits = Array.from({ length: 32 }, (_, i) => {
     branch: `M${point(points[2])} L${point(rotate(middle + bend + 7, lane * 3 + direction * (bend + 7)))} L${point(branchEnd)}`,
     end,
     branchEnd,
+    nodeRadius: i % 3 === 0 ? 2.3 : 1.5,
     opacity: 0.52 + random() * 0.46,
   };
 });
@@ -58,26 +62,46 @@ const id = `sphere-${index}`;
             <stop stop-color="#e9bc65" stop-opacity="0.3" />
             <stop offset="1" stop-color="#e9bc65" stop-opacity="0" />
           </radialGradient>
+          <!-- Trim the visible stroke, including round caps and moving signals,
+               to the outer edges of the node outlines and the core ring. -->
+          <mask id={`${id}-trace-boundary`} maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200" style="mask-type: luminance">
+            <rect width="200" height="200" fill="white" />
+            <circle cx="100" cy="100" r={coreRing.radius + coreRing.strokeWidth / 2} fill="black" />
+            {circuits.map(({ end, branchEnd, nodeRadius }, i) => (
+              <>
+                <circle cx={end[0]} cy={end[1]} r={nodeRadius + nodeStrokeWidth / 2} fill="black" />
+                {i % 2 === 0 && <circle cx={branchEnd[0]} cy={branchEnd[1]} r={branchNodeRadius + nodeStrokeWidth / 2} fill="black" />}
+              </>
+            ))}
+          </mask>
         </defs>
         <circle cx="100" cy="100" r="80" fill={`url(#${id}-glow)`} />
-        <g class="circuit-depth" stroke="#dac08a" stroke-width="0.55" opacity="0.24">
-          {circuits.map(({ path }) => <path d={path} transform="translate(13 7) scale(0.87)" />)}
+        <g class="circuit-traces" mask={`url(#${id}-trace-boundary)`}>
+          <g class="circuit-depth" stroke="#dac08a" stroke-width="0.55" opacity="0.24">
+            {circuits.map(({ path }) => <path d={path} transform="translate(13 7) scale(0.87)" />)}
+          </g>
+          <g stroke="#ebc57d" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            {circuits.map(({ path, branch, opacity }, i) => (
+              <g opacity={opacity}>
+                <path d={path} />
+                {i % 2 === 0 && <path d={branch} stroke-width="0.65" opacity="0.7" />}
+              </g>
+            ))}
+          </g>
+          <g stroke="#fff0bc" stroke-width="1.7" stroke-linecap="round">
+            {circuits.filter((_, i) => i % 3 === 0).map(({ path }, i) => <path class="circuit-signal" d={path} pathLength="100" style={`--signal-delay:${-i * 0.63}s;`} />)}
+          </g>
         </g>
-        <g stroke="#ebc57d" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-          {circuits.map(({ path, branch, end, branchEnd, opacity }, i) => (
+        <g class="circuit-nodes" stroke="#ebc57d" stroke-width={nodeStrokeWidth}>
+          {circuits.map(({ end, branchEnd, nodeRadius, opacity }, i) => (
             <g opacity={opacity}>
-              <path d={path} />
-              {i % 2 === 0 && <path d={branch} stroke-width="0.65" opacity="0.7" />}
-              <circle cx={end[0]} cy={end[1]} r={i % 3 === 0 ? 2.3 : 1.5} fill="#9a804b" fill-opacity="0.25" />
-              {i % 2 === 0 && <circle cx={branchEnd[0]} cy={branchEnd[1]} r="1.2" />}
+              <circle cx={end[0]} cy={end[1]} r={nodeRadius} fill="#9a804b" fill-opacity="0.25" />
+              {i % 2 === 0 && <circle cx={branchEnd[0]} cy={branchEnd[1]} r={branchNodeRadius} />}
             </g>
           ))}
         </g>
-        <g stroke="#fff0bc" stroke-width="1.7" stroke-linecap="round">
-          {circuits.filter((_, i) => i % 3 === 0).map(({ path }, i) => <path class="circuit-signal" d={path} pathLength="100" style={`--signal-delay:${-i * 0.63}s;`} />)}
-        </g>
         <g stroke="#ebc581">
-          <circle cx="100" cy="100" r="16" stroke-width="0.7" stroke-dasharray="19 3 7 3" />
+          <circle cx="100" cy="100" r={coreRing.radius} stroke-width={coreRing.strokeWidth} stroke-dasharray="19 3 7 3" />
           <circle cx="100" cy="100" r="12.5" stroke-width="1.4" />
           <circle cx="100" cy="100" r="9" fill={`url(#${id}-core)`} stroke-width="1" />
         </g>

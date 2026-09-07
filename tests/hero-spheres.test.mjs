@@ -12,6 +12,7 @@ class Element extends EventTarget {
   rect = { left: 0, top: 0, width: 100, height: 100 };
   focusVisible = false;
   layoutReads = 0;
+  animations = [];
   setAttribute(name, value) { this.attributes.set(name, value); }
   getAttribute(name) { return this.attributes.get(name) ?? null; }
   querySelector(selector) { return this.selectors[selector]; }
@@ -19,7 +20,10 @@ class Element extends EventTarget {
   getBoundingClientRect() { this.layoutReads++; return this.rect; }
   matches() { return this.focusVisible; }
   closest() { return null; }
-  animate() { return { cancel() {} }; }
+  animate(keyframes, options) {
+    this.animations.push({ keyframes, options });
+    return { cancel() {} };
+  }
   emit(type, properties = {}) { this.dispatchEvent(Object.assign(new Event(type), properties)); }
 }
 
@@ -58,6 +62,8 @@ function fixture(t, reduced = false) {
     ray.selectors['.ray-branch'] = [new Element(), new Element()];
     ray.selectors['.ray-impact'] = new Element();
     svg.selectors[`[data-ray="${index}"]`] = ray;
+    svg.selectors[`.ray-incoming-travel[data-ray-travel="${index}"]`] = new Element();
+    svg.selectors[`.ray-branch-travel[data-ray-travel="${index}"]`] = [new Element(), new Element()];
     return ray;
   });
   hero.selectors['.hero-rays'] = svg;
@@ -66,7 +72,7 @@ function fixture(t, reduced = false) {
   media.matches = reduced;
   initSphereInteractions(hero, media);
   return {
-    hero, buttons, rays, media, frames,
+    hero, svg, buttons, rays, media, frames,
     tick(time) {
       now = time;
       const pending = [...frames.entries()].filter(([, timer]) => timer.time <= time);
@@ -88,7 +94,7 @@ test('hover reveals only at impact, splits at the sphere center, and leaves no r
   assert.equal(button.layoutReads, initialLayoutReads, 'the ray must not remeasure the sphere while it travels');
   assert.equal(button.dataset.revealed, 'true');
   const incoming = ray.querySelector('.ray-incoming').getAttribute('d');
-  assert.match(incoming, /^M[\d.]+,0 L150,250$/);
+  assert.match(incoming, /^M150,250 L.* L.* Z$/);
   const branches = ray.querySelectorAll('.ray-branch');
   assert.ok(branches.every((path) => path.getAttribute('d').startsWith('M150,250 L')));
   assert.notEqual(branches[0].getAttribute('d'), branches[1].getAttribute('d'));
@@ -188,11 +194,39 @@ test('resizing tracks the sphere center and a hidden sphere does not get stuck a
   button.rect.left = 200;
   resize();
   tick(200);
-  assert.match(ray.querySelector('.ray-incoming').getAttribute('d'), /L250,250$/);
+  assert.match(ray.querySelector('.ray-incoming').getAttribute('d'), /^M250,250 L/);
   button.rect.width = 0;
   resize();
   tick(300);
   assert.equal(button.dataset.revealed, 'true');
   assert.equal(ray.getAttribute('opacity'), '0');
   assert.equal(frames.size, 0);
+});
+
+test('filled beams meet at one sharp tip, widen toward the edges, and reveal before fading together', (t) => {
+  const { buttons: [button], rays: [ray], svg } = fixture(t);
+  button.emit('click');
+  const beams = [ray.querySelector('.ray-incoming'), ...ray.querySelectorAll('.ray-branch')];
+  const travel = [svg.querySelector('.ray-incoming-travel[data-ray-travel="0"]'), ...svg.querySelectorAll('.ray-branch-travel[data-ray-travel="0"]')];
+  const baseCenters = [];
+  beams.forEach((beam, index) => {
+    const coordinates = beam.getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number);
+    assert.equal(coordinates.length, 6, 'each beam is a filled triangle');
+    const [x, y, ax, ay, bx, by] = coordinates;
+    assert.deepEqual([x, y], [150, 250], 'all three tips meet at the sphere center');
+    const width = Math.hypot(ax - bx, ay - by);
+    assert.ok(width > 18, 'the outer base must be visibly wider than a stroked line');
+    assert.ok(Number(travel[index].getAttribute('stroke-width')) > width, 'the reveal mask must cover the full beam width');
+    baseCenters.push([(ax + bx) / 2, (ay + by) / 2]);
+  });
+  assert.ok(baseCenters[0][1] < 0, 'the incoming wide base extends beyond the top edge');
+  assert.ok(baseCenters.slice(1).every(([, y]) => y > 900), 'the branches widen beyond the bottom edge');
+  assert.ok(baseCenters[1][0] < 150 && baseCenters[2][0] > 150, 'the branches diverge');
+  assert.match(travel[0].getAttribute('d'), /L150,250$/);
+  assert.ok(travel.slice(1).every((path) => path.getAttribute('d').startsWith('M150,250 L')));
+  const incomingTiming = travel[0].animations[0].options;
+  const branchTiming = travel[1].animations[0].options;
+  const fadeTiming = ray.animations[0].options;
+  assert.equal(branchTiming.delay, incomingTiming.duration, 'branches begin only when the incoming beam reaches the sphere');
+  assert.ok(fadeTiming.delay > branchTiming.delay + branchTiming.duration, 'the full tapered shape remains visible before it fades');
 });
