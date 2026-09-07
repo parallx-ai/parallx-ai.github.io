@@ -34,6 +34,7 @@
   .prose-toc,
   .prose-toc-toggle {
     --toc-rule: color-mix(in srgb, var(--color-gold-deep) 45%, var(--color-rule));
+    --toc-track: color-mix(in srgb, var(--color-gold-deep) 65%, var(--color-rule));
   }
 
   [data-article-content] :is(h1, h2, h3) {
@@ -50,12 +51,13 @@
   }
 
   .prose-toc ol {
-    --toc-indent: 0.85rem;
+    /* Whole-pixel indents keep nested hairline tracks crisp at the base size. */
+    --toc-indent: 0.875rem;
 
     position: relative;
     margin: 0;
     padding: 0.15rem 0 0.15rem var(--toc-indent);
-    border-left: 1px dashed var(--toc-rule);
+    border-left: 1px dashed var(--toc-track);
     list-style: none;
   }
 
@@ -69,7 +71,7 @@
     top: -0.7rem;
     left: -1px;
     height: 0.7rem;
-    border-left: 1px dashed var(--toc-rule);
+    border-left: 1px dashed var(--toc-track);
   }
 
   .prose-toc li {
@@ -85,7 +87,7 @@
   }
 
   .prose-toc li > ol {
-    --toc-connector-length: 0.85rem;
+    --toc-connector-length: var(--toc-indent);
 
     margin-top: 0.2rem;
     padding-bottom: 0.25rem;
@@ -101,7 +103,7 @@
     top: 0;
     left: calc(-1 * var(--toc-connector-length) - 1px);
     width: calc(var(--toc-connector-length) + 1px);
-    border-top: 1px dashed var(--toc-rule);
+    border-top: 1px dashed var(--toc-track);
   }
 
   .prose-toc ol::after {
@@ -122,7 +124,7 @@
     left: calc(-1 * var(--toc-connector-length) - 1px);
     width: calc(var(--toc-connector-length) + 1px);
     height: 1px;
-    border-top: 1px dashed var(--toc-rule);
+    border-top: 1px dashed var(--toc-track);
     background: none;
     transform: none;
   }
@@ -287,6 +289,19 @@
   }
 
   @media (min-width: 80rem) {
+    .prose-toc li + li {
+      margin-top: 0.5rem;
+    }
+
+    .prose-toc li[data-depth='1'] + li {
+      margin-top: 0.7rem;
+    }
+
+    .prose-toc li > ol {
+      margin-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
     /* Keep the circuit in the reading gutter and let it stop at the footer. */
     .prose-toc-rail {
       position: absolute;
