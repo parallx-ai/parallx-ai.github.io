@@ -27,7 +27,7 @@ const links = [
       </nav>
     </div>
     <div class="footer-bottom">
-      <p class="footer-legal">© {year} Parallax. Parallax is a sponsored project of <a href="https://www.meridiancambridge.org/" rel="noopener" target="_blank">Meridian Impact CIC</a> (CN: 13653958)</p>
+      <p class="footer-legal">© {year} Parallax. All rights reserved. Parallax is a project of <a href="https://www.meridiancambridge.org/" rel="noopener" target="_blank">Meridian Impact CIC</a>, a UK not-for-profit community interest company (CN: 13653958) with US 501(c)(3) equivalency.</p>
       <ul class="footer-socials" aria-label="Parallax links">
         {links.map((link) => (
           <li><a href={link.url} rel={link.url.startsWith('mailto:') ? undefined : 'noopener'} target={link.url.startsWith('mailto:') ? undefined : '_blank'} aria-label={link.label} title={link.label}>
