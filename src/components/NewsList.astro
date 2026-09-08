@@ -1,5 +1,6 @@
 ---
 import Container from './Container.astro';
+import NewsletterSignup from './NewsletterSignup.astro';
 
 interface NewsItem {
   title: string;
@@ -18,7 +19,12 @@ const { items } = Astro.props;
 <section id="news" class="scroll-mt-[76px] bg-paper py-24 max-nav:py-16">
   <Container>
     <div class="grid grid-cols-[1fr_2fr] items-start gap-[60px] max-nav:grid-cols-1 max-nav:gap-8">
-      <h2 class="font-display text-[clamp(30px,3.5vw,46px)] font-semibold leading-[1.05] tracking-[-0.035em]">News</h2>
+      <div>
+        <h2 class="font-display text-[clamp(30px,3.5vw,46px)] font-semibold leading-[1.05] tracking-[-0.035em]">News</h2>
+        <div class="mt-8">
+          <NewsletterSignup />
+        </div>
+      </div>
 
       <div class="border-t border-rule">
         {items.map((item) => (

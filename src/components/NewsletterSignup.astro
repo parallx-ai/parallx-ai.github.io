@@ -1,0 +1,105 @@
+---
+// Keep the hosted form so list settings and anti-spam protection stay with EmailOctopus.
+const formId = '42205a5c-ab57-11f1-a7c4-0512a1bec2ec';
+---
+
+<div class="newsletter-signup">
+  <p id="newsletter-description" class="mb-5 text-[16px] leading-[1.6] text-ink-1">Get research and news from Parallax in your inbox.</p>
+  <div class="newsletter-embed" data-newsletter-embed>
+    <p class="newsletter-loading text-[14px] text-ink-2" role="status" hidden>Loading signup form…</p>
+    <script is:inline async src={`https://eocampaign1.com/form/${formId}.js`} data-form={formId}></script>
+  </div>
+  <noscript><p class="text-[14px] text-ink-2">Enable JavaScript to subscribe to our mailing list.</p></noscript>
+  <p class="newsletter-captcha mt-4 text-[11px] leading-[1.6] text-ink-2">This site is protected by reCAPTCHA. Google's <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.</p>
+</div>
+
+<script>
+  const embed = document.querySelector<HTMLElement>('[data-newsletter-embed]');
+  if (embed) {
+    const loading = embed.querySelector<HTMLElement>('.newsletter-loading');
+    const enhanceForm = () => {
+      const form = embed.querySelector('form');
+      if (!form) return false;
+      form.setAttribute('aria-label', 'Subscribe to Parallax updates');
+      form.querySelector('input[type="email"]')?.setAttribute('autocomplete', 'email');
+      form.querySelector('input[type="email"]')?.setAttribute('aria-describedby', 'newsletter-description');
+      embed.querySelector('.emailoctopus-success-message')?.setAttribute('role', 'status');
+      embed.querySelector('.emailoctopus-error-message')?.setAttribute('role', 'alert');
+      if (loading) loading.hidden = true;
+      return true;
+    };
+    if (!enhanceForm()) {
+      if (loading) loading.hidden = false;
+      const observer = new MutationObserver(() => {
+        if (enhanceForm()) {
+          clearTimeout(timeout);
+          observer.disconnect();
+        }
+      });
+      observer.observe(embed, { childList: true, subtree: true });
+      const timeout = window.setTimeout(() => {
+        if (loading) loading.textContent = 'The signup form could not load. Please refresh the page to try again.';
+      }, 12000);
+    }
+  }
+</script>
+
+<style>
+  .newsletter-signup { max-width: 360px; }
+  .newsletter-captcha a { text-decoration: underline; text-underline-offset: 2px; }
+
+  /* The embed inserts its own stylesheet after page load. Scope overrides to
+     this component and override its theme variables, including dark mode. */
+  .newsletter-embed :global([data-form]) {
+    --font-family: var(--font-body) !important;
+    --text-colour: var(--color-ink-1) !important;
+  }
+  .newsletter-embed :global(.emailoctopus-form) {
+    --field-colour: var(--color-cream) !important;
+    --field-border-colour: var(--color-ink-2) !important;
+    --label-colour: var(--color-ink-1) !important;
+    --base-font-size: 16px !important;
+    --button-colour: var(--color-ink) !important;
+    --button-text-colour: var(--color-cream) !important;
+    --eo-form-font-color: var(--color-ink) !important;
+    --eo-form-placeholder: var(--color-ink-2) !important;
+  }
+  .newsletter-embed :global(.form-container) { max-width: none; }
+  .newsletter-embed :global(.emailoctopus-form-wrapper) { margin-top: 0; }
+  .newsletter-embed :global(.main-form) { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+  .newsletter-embed :global([eo-form-fields-container]) { width: 100%; }
+  .newsletter-embed :global(.main-form .emailoctopus-form-row) { min-width: 0; width: 100%; margin: 0 !important; }
+  .newsletter-embed :global(.emailoctopus-form input[type="email"]) {
+    width: 100%;
+    height: 48px;
+    padding: 11px 14px;
+    border: 1px solid var(--color-ink-2);
+    border-radius: 0;
+    color: var(--color-ink);
+    box-shadow: none;
+  }
+  .newsletter-embed :global(.emailoctopus-form input[type="email"]::placeholder) { color: var(--color-ink-2); opacity: 1; }
+  .newsletter-embed :global(.emailoctopus-form input[type="submit"]) {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 22px;
+    margin: 0 !important;
+    border: 1px solid var(--color-ink);
+    border-radius: 0;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    cursor: pointer;
+    transition: background-color 180ms, color 180ms;
+  }
+  .newsletter-embed :global(.emailoctopus-form input[type="submit"]:hover) { background-color: transparent; color: var(--color-ink); }
+  .newsletter-embed :global(.emailoctopus-form input:focus-visible) { outline: 2px solid var(--color-gold); outline-offset: 3px; box-shadow: none; }
+  .newsletter-embed :global(.emailoctopus-form input[type="submit"]:disabled) { opacity: 0.65; cursor: wait; }
+  .newsletter-embed :global(.emailoctopus-success-message),
+  .newsletter-embed :global(.emailoctopus-error-message) { font-size: 14px; line-height: 1.6; text-align: left; }
+  .newsletter-embed :global(.emailoctopus-error-message:not(:empty)) { margin-bottom: 12px; }
+
+  /* Parallax uses Pro, which permits removing the provider branding. */
+  .newsletter-embed :global([eo-block="powered-by"]) { display: none; }
+</style>
