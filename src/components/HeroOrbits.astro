@@ -109,6 +109,7 @@
     }
     new ResizeObserver(resize).observe(hero);
     new MutationObserver(syncMotion).observe(hero, { attributes: true, attributeFilter: ['data-running'] });
+    hero.addEventListener('sphere:move', draw);
     document.fonts.ready.then(resize);
     resize();
     syncMotion();

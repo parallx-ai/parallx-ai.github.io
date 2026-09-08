@@ -22,7 +22,7 @@ const spheres = [
   <div class="hero-paper" aria-hidden="true"></div>
   <HeroOrbits />
 
-  <div class="hero-spheres" role="group" aria-label="Explore the spheres to reveal their inner circuitry">
+  <div class="hero-spheres" role="group" aria-label="Click the spheres to reveal their inner circuitry, or drag them a little and release">
     {spheres.map((sphere, index) => <HeroSphere {...sphere} index={index} />)}
   </div>
   <HeroRays count={spheres.length} />

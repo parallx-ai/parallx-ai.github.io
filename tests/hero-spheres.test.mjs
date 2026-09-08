@@ -13,13 +13,22 @@ class Element extends EventTarget {
   focusVisible = false;
   layoutReads = 0;
   animations = [];
+  style = { translate: '0px 0px' };
+  capturedPointer = null;
   setAttribute(name, value) { this.attributes.set(name, value); }
   getAttribute(name) { return this.attributes.get(name) ?? null; }
   querySelector(selector) { return this.selectors[selector]; }
   querySelectorAll(selector) { return this.selectors[selector]; }
-  getBoundingClientRect() { this.layoutReads++; return this.rect; }
+  getBoundingClientRect() {
+    this.layoutReads++;
+    const [x, y] = (this.position?.style.translate ?? '0px 0px').split(' ').map(parseFloat);
+    return { ...this.rect, left: this.rect.left + x, top: this.rect.top + y };
+  }
   matches() { return this.focusVisible; }
-  closest() { return null; }
+  closest(selector) { return selector === '.sphere-position' ? this.position : null; }
+  setPointerCapture(id) { this.capturedPointer = id; }
+  hasPointerCapture(id) { return this.capturedPointer === id; }
+  releasePointerCapture() { this.capturedPointer = null; }
   animate(keyframes, options) {
     this.animations.push({ keyframes, options });
     return { cancel() {} };
@@ -38,6 +47,8 @@ function fixture(t, reduced = false) {
     performance: { now: () => now },
     setTimeout: (callback, delay) => { frames.set(++id, { callback, time: now + delay }); return id; },
     clearTimeout: (key) => frames.delete(key),
+    requestAnimationFrame: (callback) => { frames.set(++id, { callback: () => callback(now), time: now + 16 }); return id; },
+    cancelAnimationFrame: (key) => frames.delete(key),
     MutationObserver: class { constructor(callback) { onMotion = callback; } observe() {} },
     ResizeObserver: class { constructor(callback) { onResize = callback; } observe() {} },
   };
@@ -55,9 +66,11 @@ function fixture(t, reduced = false) {
   const svg = new Element();
   const buttons = [new Element(), new Element()];
   const rays = buttons.map((button, index) => {
+    button.position = new Element();
     button.rect = { left: 100 + index * 900, top: 276, width: 100, height: 100 };
     button.setAttribute('aria-pressed', 'false');
     const ray = new Element();
+    ray.setAttribute('opacity', '0');
     ray.selectors['.ray-incoming'] = new Element();
     ray.selectors['.ray-branch'] = [new Element(), new Element()];
     ray.selectors['.ray-impact'] = new Element();
@@ -83,9 +96,14 @@ function fixture(t, reduced = false) {
   };
 }
 
-test('hover reveals only at impact, splits at the sphere center, and leaves no ray running', (t) => {
+test('hover only enlarges; a click reveals at impact without a geometry loop', (t) => {
   const { buttons: [button], rays: [ray], tick, frames } = fixture(t);
   button.emit('pointerenter', { pointerType: 'mouse' });
+  assert.equal(button.dataset.active, 'true');
+  assert.equal(button.dataset.revealed, 'false');
+  assert.equal(ray.getAttribute('opacity'), '0');
+  assert.equal(frames.size, 0);
+  button.emit('click');
   const initialLayoutReads = button.layoutReads;
   tick(100);
   assert.equal(button.dataset.revealed, 'false');
@@ -103,27 +121,33 @@ test('hover reveals only at impact, splits at the sphere center, and leaves no r
   assert.equal(button.dataset.revealed, 'true');
   assert.equal(frames.size, 0);
   button.emit('pointerleave');
+  assert.equal(button.dataset.revealed, 'true', 'click selection survives pointer leave');
+  button.emit('click');
   assert.equal(button.dataset.revealed, 'false');
 });
 
-test('leaving before impact cancels the pending reveal', (t) => {
+test('deselecting before impact cancels the pending reveal even while hovered', (t) => {
   const { buttons: [button], rays: [ray], tick, frames } = fixture(t);
   button.emit('pointerenter', { pointerType: 'mouse' });
+  button.emit('click');
   tick(100);
-  button.emit('pointerleave');
+  button.emit('click');
   tick(1600);
   assert.equal(button.dataset.revealed, 'false');
   assert.equal(ray.getAttribute('opacity'), '0');
   assert.equal(frames.size, 0);
+  assert.equal(button.dataset.active, 'true');
 });
 
-test('clicking during hover pins without restarting the ray; selecting another sphere cancels the old one', (t) => {
+test('a ray starts at click time; selecting another sphere cancels the old one', (t) => {
   const { buttons: [first, second], tick } = fixture(t);
   first.emit('pointerenter', { pointerType: 'mouse' });
   tick(300);
   first.emit('click');
   first.emit('pointerleave');
   tick(500);
+  assert.equal(first.dataset.revealed, 'false');
+  tick(800);
   assert.equal(first.dataset.revealed, 'true');
   assert.equal(first.getAttribute('aria-pressed'), 'true');
   second.emit('click');
@@ -147,16 +171,19 @@ test('touch pointer entry does not reveal until tapped', (t) => {
   assert.equal(button.getAttribute('aria-pressed'), 'true');
 });
 
-test('keyboard focus triggers the ray; blur and Escape cancel pending reveals', (t) => {
-  const { hero, buttons: [button], tick } = fixture(t);
+test('keyboard focus only enlarges; activation triggers the ray and Escape cancels it', (t) => {
+  const { hero, buttons: [button], tick, frames } = fixture(t);
   button.focusVisible = true;
   button.emit('focus');
+  assert.equal(button.dataset.active, 'true');
+  assert.equal(frames.size, 0);
   tick(100);
   button.emit('blur');
   tick(500);
   assert.equal(button.dataset.revealed, 'false');
   button.emit('focus');
-  button.emit('click');
+  button.emit('click', { detail: 0 });
+  assert.ok(frames.size > 0);
   hero.emit('keydown', { key: 'Escape' });
   tick(2000);
   assert.equal(button.dataset.revealed, 'false');
@@ -229,4 +256,170 @@ test('filled beams meet at one sharp tip, widen toward the edges, and reveal bef
   const fadeTiming = ray.animations[0].options;
   assert.equal(branchTiming.delay, incomingTiming.duration, 'branches begin only when the incoming beam reaches the sphere');
   assert.ok(fadeTiming.delay > branchTiming.delay + branchTiming.duration, 'the full tapered shape remains visible before it fades');
+});
+
+const pointer = { pointerId: 1, pointerType: 'mouse', isPrimary: true, button: 0, clientX: 150, clientY: 326 };
+const offset = (button) => button.position.style.translate.split(' ').map(parseFloat);
+const displacement = (button) => Math.hypot(...offset(button));
+
+for (const pointerType of ['mouse', 'touch', 'pen']) {
+  test(`${pointerType} dragging is constrained, suppresses the click, and settles home`, (t) => {
+    const { buttons: [button], rays: [ray], tick, frames } = fixture(t);
+    button.emit('pointerdown', { ...pointer, pointerType });
+    assert.equal(button.capturedPointer, 1);
+    button.emit('pointermove', { ...pointer, pointerType, clientX: 650, clientY: 700 });
+    const held = displacement(button);
+    assert.ok(held > 0 && held < 50, 'a long drag moves the sphere only a short distance');
+    assert.equal(button.dataset.revealed, 'false');
+    assert.equal(ray.getAttribute('opacity'), '0');
+    button.emit('pointerup', { ...pointer, pointerType });
+    assert.equal(button.capturedPointer, null);
+    button.emit('click', { detail: 1 });
+    assert.equal(button.getAttribute('aria-pressed'), 'false', 'release must not activate the sphere');
+    tick(250);
+    assert.ok(displacement(button) > 0 && displacement(button) < held, 'return is gradual');
+    tick(2000);
+    assert.deepEqual(offset(button), [0, 0]);
+    assert.equal(frames.size, 0, 'no return loop remains idle');
+    button.emit('click', { detail: 1 });
+    assert.equal(ray.getAttribute('opacity'), '1', 'the next intentional click still works');
+  });
+}
+
+test('pointer jitter still permits a click, and non-primary pointers do not start drags', (t) => {
+  const { buttons: [button], rays: [ray] } = fixture(t);
+  button.emit('pointerdown', { ...pointer, button: 2 });
+  assert.equal(button.capturedPointer, null);
+  button.emit('pointerdown', { ...pointer, isPrimary: false });
+  assert.equal(button.capturedPointer, null);
+  button.emit('pointerdown', pointer);
+  button.emit('pointermove', { ...pointer, clientX: 153, clientY: 328 });
+  button.emit('pointerup', pointer);
+  assert.deepEqual(offset(button), [0, 0]);
+  button.emit('click', { detail: 1 });
+  assert.equal(ray.getAttribute('opacity'), '1');
+});
+
+test('dragging starts heavy and keeps slowing without hitting a fixed boundary', (t) => {
+  const { buttons: [button] } = fixture(t);
+  button.emit('pointerdown', pointer);
+  let previous = 0;
+  let previousStep = 25;
+  for (const distance of [25, 50, 75, 100]) {
+    button.emit('pointermove', { ...pointer, clientX: pointer.clientX + distance });
+    const current = displacement(button);
+    const step = current - previous;
+    assert.ok(step > 0 && step < previousStep * 0.85, 'equal pulls move the sphere progressively less');
+    assert.ok(step < 12.5, 'even the initial pull travels less than half the pointer distance');
+    previous = current;
+    previousStep = step;
+  }
+  button.emit('pointermove', { ...pointer, clientX: pointer.clientX + 500 });
+  const far = displacement(button);
+  button.emit('pointermove', { ...pointer, clientX: pointer.clientX + 1000 });
+  assert.ok(displacement(button) > far + 3, 'farther pulls still visibly move the sphere instead of flattening against a boundary');
+  assert.ok(displacement(button) < 50, 'large pulls still keep the sphere near its origin');
+  button.emit('pointermove', pointer);
+  assert.deepEqual(offset(button), [0, 0], 'reversing the pull brings it back through the origin');
+  button.emit('pointermove', { ...pointer, clientX: pointer.clientX - 500 });
+  assert.ok(Math.abs(offset(button)[0] + far) < 1e-9, 'resistance is symmetric in the opposite direction');
+});
+
+test('re-grabbing a returning sphere does not jump or reset outward resistance', (t) => {
+  const { buttons: [button], tick } = fixture(t);
+  button.emit('pointerdown', pointer);
+  button.emit('pointermove', { ...pointer, clientX: 220 });
+  button.emit('pointerup', pointer);
+  tick(400);
+  const intermediate = offset(button);
+  button.emit('pointerdown', { ...pointer, clientX: 200 });
+  assert.deepEqual(offset(button), intermediate);
+  tick(700);
+  assert.deepEqual(offset(button), intermediate, 'holding pauses the return');
+  button.emit('pointermove', { ...pointer, clientX: 207 });
+  assert.ok(offset(button)[0] > intermediate[0]);
+  assert.ok(offset(button)[0] - intermediate[0] < 7, 'movement remains resisted');
+  button.emit('pointermove', { ...pointer, clientX: 1000 });
+  assert.ok(displacement(button) < 50, 'a long second drag remains heavily resisted');
+  button.emit('pointerup', pointer);
+  tick(2800);
+  assert.deepEqual(offset(button), [0, 0]);
+});
+
+test('re-grabbing at the same offset preserves resistance for further pulls', (t) => {
+  const { buttons: [continuous, grabbed] } = fixture(t);
+  for (const button of [continuous, grabbed]) {
+    button.emit('pointerdown', pointer);
+    button.emit('pointermove', { ...pointer, clientX: pointer.clientX + 250 });
+  }
+  grabbed.emit('pointerup', pointer);
+  grabbed.emit('pointerdown', { ...pointer, clientX: pointer.clientX + 250 });
+  for (const button of [continuous, grabbed]) {
+    button.emit('pointermove', { ...pointer, clientX: pointer.clientX + 350 });
+  }
+  assert.ok(Math.abs(displacement(continuous) - displacement(grabbed)) < 1e-9, 're-grabbing cannot make outward motion lighter');
+});
+
+test('a click during return keeps its ray aligned using cached geometry', (t) => {
+  const { buttons: [button], rays: [ray], tick } = fixture(t);
+  button.emit('pointerdown', pointer);
+  button.emit('pointermove', { ...pointer, clientX: 200 });
+  button.emit('pointerup', pointer);
+  tick(200);
+  button.emit('pointerdown', pointer);
+  button.emit('pointerup', pointer);
+  button.emit('click', { detail: 1 });
+  const layoutReads = button.layoutReads;
+  tick(600);
+  const tip = ray.querySelector('.ray-incoming').getAttribute('d').match(/^M([^,]+),([^ ]+)/);
+  assert.equal(Number(tip[1]), 150 + offset(button)[0]);
+  assert.equal(Number(tip[2]), 250 + offset(button)[1]);
+  assert.equal(button.layoutReads, layoutReads);
+});
+
+for (const interruption of ['pointercancel', 'lostpointercapture', 'Escape', 'hide']) {
+  test(`${interruption} releases the sphere and cancels pending ray work`, (t) => {
+    const { hero, buttons: [button], rays: [ray], tick, hide, frames } = fixture(t);
+    button.emit('click');
+    button.emit('pointerdown', pointer);
+    button.emit('pointermove', { ...pointer, clientX: 240 });
+    assert.equal(ray.getAttribute('opacity'), '0', 'drag interrupts the travelling ray');
+    if (interruption === 'Escape') hero.emit('keydown', { key: 'Escape' });
+    else if (interruption === 'hide') hide();
+    else button.emit(interruption, pointer);
+    assert.equal(button.dataset.dragging, 'false');
+    assert.equal(button.capturedPointer, null);
+    tick(2000);
+    assert.deepEqual(offset(button), [0, 0]);
+    assert.equal(frames.size, 0);
+    button.emit('click', { detail: 0 });
+    assert.equal(button.getAttribute('aria-pressed'), String(interruption === 'Escape'), 'keyboard activation is never swallowed by drag suppression');
+  });
+}
+
+test('reduced motion keeps dragging direct, updates orbits, and returns without animation', (t) => {
+  const { hero, buttons: [button], frames } = fixture(t, true);
+  hero.dataset.running = 'false';
+  let orbitUpdates = 0;
+  hero.addEventListener('sphere:move', () => orbitUpdates++);
+  button.emit('pointerdown', pointer);
+  button.emit('pointermove', { ...pointer, clientX: 180 });
+  assert.ok(displacement(button) > 0);
+  assert.equal(orbitUpdates, 1);
+  button.emit('pointerup', pointer);
+  assert.deepEqual(offset(button), [0, 0]);
+  assert.equal(orbitUpdates, 2);
+  assert.equal(frames.size, 0);
+});
+
+test('switching to reduced motion stops an in-progress return', (t) => {
+  const { buttons: [button], media, tick, frames } = fixture(t);
+  button.emit('pointerdown', pointer);
+  button.emit('pointermove', { ...pointer, clientX: 250 });
+  button.emit('pointerup', pointer);
+  tick(200);
+  media.matches = true;
+  media.emit('change');
+  assert.deepEqual(offset(button), [0, 0]);
+  assert.equal(frames.size, 0);
 });
