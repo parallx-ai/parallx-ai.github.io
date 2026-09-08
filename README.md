@@ -15,7 +15,7 @@ Requires Node 20+.
 
 ## Mailing list signup
 
-`src/components/NewsletterSignup.astro` embeds EmailOctopus form `42205a5c-ab57-11f1-a7c4-0512a1bec2ec` in the homepage News section. The hosted embed owns list settings, submission, confirmation, and reCAPTCHA; the component supplies site-specific styles and accessible status messages. Provider branding is hidden for Parallax's Pro account. Revisit that override if the account plan changes.
+`src/components/NewsletterSignup.astro` embeds EmailOctopus form `42205a5c-ab57-11f1-a7c4-0512a1bec2ec` in the homepage News section. The hosted embed owns list settings, submission, and confirmation; reCAPTCHA is disabled in the form settings, while email validation and the honeypot remain. The script URL is versioned to refresh previously cached CAPTCHA-enabled embeds. The component supplies site-specific styles and accessible status messages. Provider branding is hidden for Parallax's Pro account. Revisit that override if the account plan changes.
 
 ## Link preview image
 
